@@ -1,3 +1,4 @@
+console.log("new version vgood233")
 function returnGarage(){
 
 	return`
@@ -30,6 +31,7 @@ function returnGarage(){
         </svg>
 	`
 }
+
 
 function returnCar(){
 
@@ -141,7 +143,7 @@ let items = {
         },
         body: JSON.stringify(items),
       });
-      console.log(response);
+      // console.log(response);
         document.querySelector('.header__icon--cart').click()
     } catch (error) {
       console.error(error);
@@ -150,8 +152,8 @@ let items = {
 
 function displayAddToCartButton(productID) {
     var showCardButtons = false;
-    return '';
-    if(customYmm['settings']['showButtonsInProductCards'] !== undefined){
+    // return '';
+    if(customYmm['settings']['showButtonsInProductCards'] !== undefined && customYmm['settings']['showButtonsInProductCards'] == true ){
         var showCardButtons =  true
     }
     
@@ -170,7 +172,6 @@ function displayAddToCartButton(productID) {
     function displayOrHideStars(product){
         
         var showReviewsInProductCards = customYmm['settings'].showReviewsInProductCards !== undefined ? true : false
-        
 
         if(showReviewsInProductCards){
             return`
@@ -187,7 +188,7 @@ function displayAddToCartButton(productID) {
     function returnProductImage(url){
         if(url != null){
             return`
-                <img class ="ymm-product-thumbnail" 
+                <img class ="ymm-product-thumbnail" loading="lazy" 
                 src = "${url}" />
             `
         }
@@ -265,12 +266,18 @@ function displayAddToCartButton(productID) {
                             <div class="product-action-buttons">
                                  ${displayAddToCartButton(product.variant_id)} 
                             </div>
+
+
+
+                        <div class="card-affirm-container">
+                            <div class="affirm-as-low-as" data-amount="${parseInt(product.price) * 100 }" data-affirm-type="logo" data-affirm-color="blue">
+                            </div>
+                        </div>
+
                         </div>
                     </div>
                 </div>
-
             </div>
-        
          `
     }
 
@@ -296,9 +303,9 @@ function displayAddToCartButton(productID) {
             document.querySelector('.no-results-message-outer').innerHTML = `
                 <div class="no-results-message">
                     <p class="no-results-msg-inner">
-                        No any products exist for the selection <span style="font-weight:bold">${selectedYear || ''} ${selectedMake || ''} ${selectedModel || ''} ${selectedEngine || ''}</span>.
+                        Not any products exist for the selection <span style="font-weight:bold">${selectedYear || ''} ${selectedMake || ''} ${selectedModel || ''} ${selectedEngine || ''}</span>.
                         <br>
-                        <a href = "${customYmm["siteURL"]}/search/">Please Click Here</a> to find all the parts that fit your selection  <a href="#"> ${returnClearAllText().length ? ' or ' + returnClearAllText() + ' filters' : ''  } or change your selection above</a> .
+                        <a href = "${customYmm["siteURL"]}/search/">Please Click Here</a> to find all the parts that fit your selection  <a href="#"> ${returnClearAllText().length ? ' or ' + returnClearAllText() + ' filters' : ''  } </a> or <a href="#">   <label style="cursor:pointer" for="cb-garage-btn" onclick="scrollToTop()"> Clear Garage / Change selection above </label></a> .
                     </p>
                 </div>
             `
@@ -306,17 +313,15 @@ function displayAddToCartButton(productID) {
     }
 
     function createBrandItem(brand){
-
         return`
             <div class="input-and-label">
-                <input ${customYmm['isInBrandPage'] ? 'disabled': ''} ${customYmm["selectedBrands"].includes(brand.name) ? 'checked' : '' } name = "cb-filter" data-filter-type = "brand" class = "cb-filter" type = "checkbox" data-brand-id = "${brand.id}" id = "cb-${brand.id}" data-term = "${brand.name}" >
+                <input ${customYmm['isInBrandPage'] ? 'disabled': ''} ${customYmm["selectedBrands"].includes(brand.name) ? 'checked' : '' } name = "cb-filter" data-filter-type = "brand" class = "cb-filter cb-filter-mandatory-filters" type = "checkbox" data-brand-id = "${brand.id}" id = "cb-${brand.id}" data-term = "${brand.name}" >
                 <label for  = "cb-${brand.id}" class="form-label--checkbox">
                     <span class="brand-name">${brand.name}</span>
                     <span class="brand-hits">${brand.hits}</span>
                 </label>
             </div>
         `
-
     }
 
     
@@ -325,10 +330,10 @@ function displayAddToCartButton(productID) {
 
         const ymmContainerId = 'search-page-ymm-form-container'
 
-        let [selectedYear, selectedMake, selectedModel, selectedEngine ] = returnSelections(ymmContainerId)
+        let [selectedYear, selectedMake, selectedModel, selectedEngine, selectedTransmission ] = returnSelections(ymmContainerId)
 
         return`
-            <h4>${selectedYear || ''} ${selectedMake || ''} ${selectedModel || '' } ${selectedEngine || '' } </h4>
+            <h4>${selectedYear || ''} ${selectedMake || ''} ${selectedModel || '' } ${selectedEngine || '' } ${selectedTransmission || ''}</h4>
         `
 
     }
@@ -376,10 +381,17 @@ function showLoadingOverlay() {
 
     // Create the loading overlay HTML markup with the unique ID
     const loadingOverlayHTML = `
-    <div class="loadingOverlay loadingOverlay2" style = "display:block;background-color: rgba(0, 0, 0, 0.03)">
-        <div class = "loadingIcon loadingText">
-            <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
-            </svg>
+    <div class="loadingOverlay loadingOverlay2" style = "display:block;background-color: rgba(0, 0, 0, 0.25)">
+        <div class="loading">
+        <div class="spinner-grow text-dark" role="status">
+        <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-light" role="status">
+        <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-dark" role="status">
+        <span class="sr-only">Loading...</span>
+        </div>
         </div>
     </div>
     `;
@@ -436,18 +448,12 @@ function returnFiltersWrappers(){
                 <div class="filters-heading">
                     <h2 class="h2">FILTER BY</h2>
                 </div>
-                <div class="ymm-filter-type ymm-categories">
-                    
+                <div class="ymm-all-filters">
+                    <div class="ymm-filter-type ymm-part-type"></div>
+                    <div class="ymm-filter-type ymm-categories"></div>
+                    <div class = "ymm-filter-type ymm-brands"></div>
+                    <div class="ymm-filter-type ymm-price"></div>
                 </div>
-
-                <div class = "ymm-filter-type ymm-brands">
-                    
-                </div>
-
-                <div class="ymm-filter-type ymm-price">
-                    
-                </div>
-                
             </div>
 
             <div>
@@ -624,53 +630,115 @@ function fillupFiltersWrappers(){
     
     if(document.querySelector('.ymm-brands') && customYmm["brands"]){
         brandData = customYmm["brands"];
-        
-        document.querySelector('.ymm-brands').innerHTML = `
-            <div class="collapsible-wrapper">
-                <div class="collapsible-title-icon" onclick="hideOrShowCollapsibleContent(event)">
-                    <h3>Brand</h3>
-                    <div class="collapsible-toggle-icon" >${returnArrowLeft()}</div>
-                </div>
-                <div class="collapsible-content">
-                    <div class="always-show-items">
-                        ${brandData.slice(0, 10).map(brand => createBrandItem(brand)).join(' ')}
+        if(document.querySelector('.ymm-brands')){
+            document.querySelector('.ymm-brands').innerHTML = '';
+        }
+        if( brandData.length ){
+            brandData = brandData.sort((a,b) =>a.name.localeCompare(b.name))
+            document.querySelector('.ymm-brands').innerHTML = `
+                <div class="collapsible-wrapper">
+                    <div class="collapsible-title-icon" onclick="hideOrShowCollapsibleContent(event)">
+                        <h3>Brand</h3>
+                        <div class="collapsible-toggle-icon" >${returnArrowLeft()}</div>
                     </div>
-                    ${
-                        brandData.length  > 10 && `
-                            <div class="surplus-items">
-                                ${brandData.slice(10, brandData.length).map(brand => createBrandItem(brand)).join(' ')}
-                            </div>
-                            <div class="show-more-items">Show More</div>
-                        ` || ''
-                    }
+                    <div class="collapsible-content">
+                        <div class="always-show-items">
+                            ${brandData.slice(0, 10).map(brand => createBrandItem(brand)).join(' ')}
+                        </div>
+                        ${
+                            brandData.length  > 10 && `
+                                <div class="surplus-items">
+                                    ${brandData.slice(10, brandData.length).map(brand => createBrandItem(brand)).join(' ')}
+                                </div>
+                                <div class="show-more-items">Show More</div>
+                            ` || ''
+                        }
+                    </div>
                 </div>
-            </div>
-        `
+            `
 
-        if(document.querySelector('.show-more-items')){
-            document.querySelector('.show-more-items').addEventListener('click', (event) => {
-                const elem  = event.target
-                elem.closest('.collapsible-content').classList.toggle('surplus-items-overflown')
-                if(elem.closest('.collapsible-content.surplus-items-overflown')){
-                    elem.innerText = "Show Less"
-                }else{
-                    elem.innerText = "Show More"
-                }
-            })
+            if(document.querySelector('.show-more-items')){
+                document.querySelector('.show-more-items').addEventListener('click', (event) => {
+                    const elem  = event.target
+                    elem.closest('.collapsible-content').classList.toggle('surplus-items-overflown')
+                    if(elem.closest('.collapsible-content.surplus-items-overflown')){
+                        elem.innerText = "Show Less"
+                    }else{
+                        elem.innerText = "Show More"
+                    }
+                })
+            }
         }
 
-    }
+
+
+        if(customYmm['customFieldsSelections']){
+            for (let key in customYmm['customFieldsSelections']) {
+                if(customYmm['customFieldsSelections'][key].length > 0){
+
+                    var value = customYmm['customFieldsSelections'][key]
+                                .filter(v => v !== null && v!== '' && v !== false && v !== undefined )
+                                .filter(v => v.trim().length > 0) 
+
+                    let html = ''
+
+                    if(value.length){
+                        html = value.map(v => {
+                            return `
+                                <div class="price-name-wrapper filter-item-wrapper" onclick="removeSelectedCustomField('${key}', '${v}')">
+                                    <span>
+                                        <strong style="text-transform: capitalize">${key.split('.').reverse()[0]?.replaceAll('_', ' ').replaceAll('desc', '').replaceAll('data', '')?.trim() }:</strong> 
+                                        <span class="price-name filter-name" style="text-transform: capitalize"> ${v}</span>
+                                    </span>
+                                    <span class="close-icon"">
+                                        ${returnCloseIcon()}
+                                    </span>
+                                </div>
+                            `
+                        }).join('')
+                    }
+                    document.querySelector('.ymm-filters-selections').innerHTML += html 
+                }     
+            }
+        }
+    }   
 
     const categories = customYmm["categories"] ;
 
-    if(categories){
+    if(categories || customYmm["brands"]){
+
+        displayCustomFieldsAndAssignListeners() 
+        // this should be at the top // cause standard filters depend on this 
+        
+        displayStandardFilterWrapper() // this line should be at the top of following lines
+
+        // these are standard filters
         displayCategories(categories)
-        displayPriceRanges()
-        assignListenerToTheCheckBoxes()
+
+        displayPriceRanges() 
+        
+        displayBrands(); 
+        
+        // this line should come after all filters are displayed
+        
+        assignListenerToTheCheckBoxes() 
+
     }else{
         document.querySelector('.ymm-filters-selections').innerHTML = ''
     }
-    
+
+    // previously
+
+    // if(categories){
+    //     displayCategories(categories)
+    // }else{
+    //     document.querySelector('.ymm-filters-selections').innerHTML = ''
+    // }
+    // displayPriceRanges()
+    // displayCustomFieldsAndAssignListeners();
+    // assignListenerToTheCheckBoxes()
+
+
     const sortOptions = [
         {
             value: "default",
@@ -695,23 +763,39 @@ function fillupFiltersWrappers(){
     ];
     
 
-    document.querySelector('.sort-by').innerHTML = `
-        <div class="sort-by-wrapper-inner">
-            <span class="label-sort-by">
-                Sort by: 
-            </span>
-            <select class="sort-by-select select" onChange="handleSortByChange(event)">
-                ${
-                    sortOptions.map(({value, label}) => {
-                        return`
-                            <option value="${value}" ${ value === customYmm['sortBy'] ? 'selected' : '' }>${label}</option>
-                        `
-                    }).join(' ')
-                }
-            </select>
-        </div>
-    `;
+    if(customYmm["allCounts"] == 0){
+        if(!document.body.className.includes('filter-section-hidden')){
+            document.body.classList.add('filter-section-hidden')
+        }
+    }else{
+        document.body.classList.remove('filter-section-hidden')
+    }
     
+
+    if(document.querySelector('.sort-by')){
+
+        document.querySelector('.sort-by').innerHTML = ''
+
+        if(customYmm["allCounts"] > 0){
+            document.querySelector('.sort-by').innerHTML = `
+                <div class="sort-by-wrapper-inner">
+                    <span class="label-sort-by">
+                        Sort by: 
+                    </span>
+                    <select class="sort-by-select select" onChange="handleSortByChange(event)">
+                        ${
+                            sortOptions.map(({value, label}) => {
+                                return`
+                                    <option value="${value}" ${ value === customYmm['sortBy'] ? 'selected' : '' }>${label}</option>
+                                `
+                            }).join(' ')
+                        }
+                    </select>
+                </div>
+            `;
+        }
+
+    }
 }
 
 window.onresize = function(){
@@ -719,11 +803,73 @@ window.onresize = function(){
     displayResponsiveFilters()
 }
 
+
+function displayCustomFieldsAndAssignListeners(){
+
+    Object.keys(customYmm['custom_fields']).forEach(key => {
+        if (typeof customYmm["customFieldsSelections"][key] === "undefined") {
+            customYmm["customFieldsSelections"][key] = [];
+        }
+    });
+
+    for (let key in customYmm['custom_fields']) {
+        const customFieldGroup = customYmm['custom_fields'][key]
+        document.querySelector('.ymm-part-type').innerHTML = `
+            <div class="ymm-brands ymm-filter-item">
+                <div class="collapsible-wrapper">
+                    <div class="collapsible-title-icon" onclick="hideOrShowCollapsibleContent(event)">
+                        <h3>${key.replaceAll('custom.', '').replaceAll('_', ' ')}</h3>
+                        <div class="collapsible-toggle-icon" >${returnArrowLeft()}</div>
+                    </div>
+                    <div class="collapsible-content">
+                        ${customFieldGroup.values
+                        .map(({value_key, value, product_count, custom_field_key}) => {
+                            return`
+                                <div class="input-and-label">
+                                    <input 
+                                        ${customYmm["customFieldsSelections"][key].includes(value_key) ? 'checked' : '' } 
+                                        name = "cb-filter" 
+                                        data-cf = "${custom_field_key}" 
+                                        class = "cb-filter cb-filter-custom-fields" 
+                                        type = "checkbox" 
+                                        id = "cb-${custom_field_key}-${value_key}" 
+                                        data-value-key = "${value_key}" 
+                                    >
+                                    <label for="cb-${custom_field_key}-${value_key}"  class="form-label--checkbox">
+                                        <span class="brand-name">${value}</span>
+                                        <span class="brand-hits">${product_count}</span>
+                                    </label>
+                                </div>                    
+                            `
+                        })
+                        .join(' ')}
+                    </div>
+                </div>
+            </div>
+       `    
+    }
+
+    Array.from(document.querySelectorAll('.cb-filter-custom-fields')).forEach(input => {
+        input.addEventListener('change', () => {
+            
+            customYmm['customFieldsSelections'][input.getAttribute('data-cf')] = []
+        
+            if(input.checked){
+                customYmm['customFieldsSelections'][input.getAttribute('data-cf')] = [input.getAttribute('data-value-key')];
+            }
+
+            fetchProductsAndRender(clearAfterLoad = true)
+        })
+    })
+      
+}
+
+
 function displayResponsiveFilters(){
     
     if(!(customYmm['isInCategoryPage'] || customYmm['isInSearchPage'] || customYmm['isInBrandPage'] )) return
 
-    if(window.innerWidth >= 990){
+    if(window.innerWidth >= 1025){
     
         // desktop
         console.log("display only in desktop ")
@@ -756,18 +902,33 @@ function  clearContentsForCategoryPage(){
 
     function fetchPreviousPage(){
         customYmm.currentPage -= 1
+        // scrollToTop()
         fetchProductsAndRender(); 
+          var element = document.getElementById("ymm-products-link");
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
     }
 
     function fetchNextPage(){
         customYmm.currentPage += 1
+        // scrollToTop()
         fetchProductsAndRender(); 
+          var element = document.getElementById("ymm-products-link");
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
     }
     
     // Function to fetch new data (replace this with your fetchNewData() logic)
     function fetchNewData(pageNumber) {
         // document.querySelector('.loading-indicator').innerHTML = "<h4>Loading</h4>"
         customYmm.currentPage = pageNumber;
+        // scrollToTop()
+          var element = document.getElementById("ymm-products-link");
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
         fetchProductsAndRender(); 
     }
 
@@ -800,7 +961,7 @@ function generatePagination(currentPage, resultsPerPage, totalResults) {
         paginationLinks.push({ label: 'Previous', page: currentPage - 1 });
     }
 
-    totalPagesThreshold = window.innerWidth < 768 ? 3 : 6;
+    totalPagesThreshold = window.innerWidth < 768 ? 5 : 6;
 
     // Add page links
     if (totalPages <= totalPagesThreshold) {
@@ -837,13 +998,15 @@ function generatePagination(currentPage, resultsPerPage, totalResults) {
                 class="pagination-link ${customYmm.currentPage == link.page ? 'active' : '' } ${link.label == 'Previous' || link.label == 'Next' ? 'pagination-btn' : '' } ${link.label == '...' ? 'disabled' : '' }"
                 onclick="${ !(link.label == '...' || customYmm.currentPage == link.page)  ? 'fetchNewData('+link.page+')' : ''} "
             >
-                ${
-                    link.label == 'Previous'
-                        ? returnPreviousIcon()
-                        : link.label == 'Next'
-                            ? returnNextIcon()
-                            : link.label
-                }
+                
+                  ${
+                      link.label == 'Previous'
+                          ? returnPreviousIcon()
+                          : link.label == 'Next'
+                              ? returnNextIcon()
+                              : link.label
+                  }
+                
             </li>
         `
     }).join('')
@@ -901,7 +1064,7 @@ function generateProductRangeText() {
             return ''
         }    
         
-        currentPage = customYmm['currentPage'], totalResults = customYmm['searchResultsCount'] , productsPerPage = 12
+        currentPage = customYmm['currentPage'], totalResults = customYmm['searchResultsCount'] , productsPerPage = customYmm.productsPerPage
         
         // Generate the final text
         const resultText = `<span class="total-results"> ${totalResults} </span> results`;
@@ -913,7 +1076,7 @@ function generateProductRangeText() {
             return ''
         }    
         
-        currentPage = customYmm['currentPage'], totalResults = customYmm['searchResultsCount'] , productsPerPage = 12
+        currentPage = customYmm['currentPage'], totalResults = customYmm['searchResultsCount'] , productsPerPage = customYmm.productsPerPage
         
         // Calculate the start and end indices of products on the current page
         const startIndex = (currentPage - 1) * productsPerPage + 1;
@@ -948,8 +1111,7 @@ function displayLoadMore(){
     }
 }
 
-       function fetchProductsAndRender(append = false){
-        
+    function fetchProductsAndRender(append = false){
         
         var hideProductsUntilVehicleSelected = true;
         
@@ -957,11 +1119,28 @@ function displayLoadMore(){
 
         const ymmContainerId = 'search-page-ymm-form-container'
         
-        let [selectedYear, selectedMake, selectedModel, selectedEngine] = returnSelections(ymmContainerId)
+        let [selectedYear, selectedMake, selectedModel, selectedEngine, selectedTransmission] = returnSelections(ymmContainerId)
 
         showLoadingOverlay()
 
-        fetch(`${customYmm["searchDataApi"]}?engine=${selectedEngine}&custom_fields=false&sortby=${customYmm['sortBy']}&searchQuery=${customYmm["searchQuery"]}&year=${customYmm[`${ymmContainerId}`].selections.year}&make=${customYmm[`${ymmContainerId}`].selections.make}&model=${customYmm[`${ymmContainerId}`].selections.model}&category=${customYmm['selectedCategory']}&page=${customYmm.currentPage}&limit=${customYmm.productsPerPage}&brands=${customYmm["selectedBrands"].join(',')}&prices=${customYmm["selectedPrices"].join(',')}`)
+        const customFilterSelections = [];
+
+        for (let key in customYmm['customFieldsSelections']) {
+            if(customYmm['customFieldsSelections'][key].length > 0){
+                customFilterSelections.push(`${key}:${encodeURIComponent(customYmm['customFieldsSelections'][key][0])}`)
+            }    
+        }
+
+        var customFieldsSelection  = false
+        if(customFilterSelections.length){
+            customFieldsSelection = customFilterSelections.join('::')
+        }
+
+if (typeof customYmm['searchQuery'] === 'string') {
+        customYmm['searchQuery'] = customYmm['searchQuery'].replace(/\*/g, '')
+}
+      
+        fetch(`${customYmm["searchDataApi"]}?super_category=${customYmm['super_category']}&custom_fields=${customFieldsSelection}&is_in_search_page=${customYmm['isInSearchPage']}&transmission=${selectedTransmission}&engine=${selectedEngine}&sortby=${customYmm['sortBy']}&searchQuery=${encodeURIComponent(customYmm["searchQuery"])}&year=${customYmm[`${ymmContainerId}`].selections.year}&make=${customYmm[`${ymmContainerId}`].selections.make}&model=${customYmm[`${ymmContainerId}`].selections.model}&category=${customYmm['selectedCategory']}&page=${customYmm.currentPage}&limit=${customYmm.productsPerPage}&brands=${customYmm["selectedBrands"].map(b => encodeURIComponent(b)).join(',')}&prices=${customYmm["selectedPrices"].join(',')}`)
     
         .then(response => response.json())
 
@@ -996,6 +1175,12 @@ function displayLoadMore(){
             
             customYmm["allCounts"] = data.count
 
+            if(customYmm['allCounts'] == 0){
+              if(customYmm['isInCategoryPage']){
+                fetchSubCategoriesAndRender()
+              }
+            }
+          
             customYmm["currentCounts"] = data.products.length
 
             renderProducts(data.products, append)
@@ -1003,7 +1188,7 @@ function displayLoadMore(){
             const isPagination = true;
 
             if(isPagination){
-                document.querySelector('.loading-indicator').innerHTML = generatePagination(customYmm.currentPage, 12, customYmm['searchResultsCount']);
+                document.querySelector('.loading-indicator').innerHTML = generatePagination(customYmm.currentPage, 36, customYmm['searchResultsCount']);
             }else{
                 document.querySelector('.loading-indicator').innerHTML = displayLoadMore()
             }
@@ -1017,7 +1202,7 @@ function displayLoadMore(){
             customYmm["categories"] = data.categories;
 
             customYmm["brands"] = data.brands
-
+            customYmm['custom_fields'] = data.custom_fields
             customYmm["priceRanngesVsFrequency"] = data.priceRanngesVsFrequency
             
             displayResponsiveFilters();
@@ -1028,7 +1213,8 @@ function displayLoadMore(){
                     ${returnSelectionsForBreadCrumb()}
                 `
             displayBreadCrumb()
-            scrollToTop()
+
+            updateAffirmPricingInProductCard();
 
         })
 
@@ -1039,6 +1225,7 @@ function displayLoadMore(){
     }
 
 function scrollToTop() {
+  return
     window.scrollTo({
         top: 0,
         behavior: 'smooth' // Add smooth scrolling behavior if supported
@@ -1057,7 +1244,7 @@ function scrollToTop() {
 
             return`
                 <div class="input-and-label">
-                    <input ${customYmm["selectedPrices"].includes(id) ? 'checked' : ''} data-term = "${id}" name = "cb-filter" data-filter-type = "price" class = "cb-filter" type = "checkbox" data-price-id = "${id}" id = "cb-${id}">
+                    <input ${customYmm["selectedPrices"].includes(id) ? 'checked' : ''} data-term = "${id}" name = "cb-filter" data-filter-type = "price" class = "cb-filter cb-filter-mandatory-filters" type = "checkbox" data-price-id = "${id}" id = "cb-${id}">
                     <label for  = "cb-${id}" class="form-label--checkbox">
                         
                         <span class="brand-name">${name}</span>
@@ -1069,20 +1256,27 @@ function scrollToTop() {
 
         }
 
+        if(document.querySelector('.ymm-price')){
 
+            document.querySelector('.ymm-price').innerHTML = ''
+
+            if(customYmm["allCounts"] > 0){
           
-        document.querySelector('.ymm-price').innerHTML = `
-        
-            <div class="collapsible-wrapper">
-                <div  class="collapsible-title-icon" onclick="hideOrShowCollapsibleContent(event)">
-                    <h3>Price</h3>
-                    <div class="collapsible-toggle-icon" >${returnArrowLeft()}</div>
-                </div>
-                <div class="collapsible-content">
-                    ${Object.keys(priceIdsAndLabels).filter(id=>customYmm["priceRanngesVsFrequency"][id] > 0 ).map(key => createPriceItem(key, priceIdsAndLabels[key]) ).join(' ')}
-                </div>
-            </div>
-        `
+                document.querySelector('.ymm-price').innerHTML = `
+                
+                    <div class="collapsible-wrapper">
+                        <div  class="collapsible-title-icon" onclick="hideOrShowCollapsibleContent(event)">
+                            <h3>Price</h3>
+                            <div class="collapsible-toggle-icon" >${returnArrowLeft()}</div>
+                        </div>
+                        <div class="collapsible-content">
+                            ${Object.keys(priceIdsAndLabels).filter(id=>customYmm["priceRanngesVsFrequency"][id] > 0 ).map(key => createPriceItem(key, priceIdsAndLabels[key]) ).join(' ')}
+                        </div>
+                    </div>
+                `
+            }
+
+        }
 
     }
 
@@ -1141,13 +1335,12 @@ function scrollToTop() {
             <input 
             
                 id = "shop-by-category-${category.url}"
-                ${(customYmm["isInCategoryPage"] && category.parent_id == 0) ?'disabled' : '' } 
                 type = "checkbox" 
                 data-filter-type = "category"
                 name = "shop-by-category"
                 data-term = "${category.url}"
                 data-category-name='${category.name.trim()}'
-                class  = "cb-filter" 
+                class  = "cb-filter cb-filter-mandatory-filters" 
                 data-category-url = "${category.url}"
                 ${customYmm["selectedCategories"].includes(category.url) ? 'checked' : '' } 
             
@@ -1158,39 +1351,20 @@ function scrollToTop() {
     }
 
 
-    function displayEachCategory(category){
-
-        return`
-            <div class="ymm-categories-item">
-                ${renderCheckbox(category)}
-
-                <label for="shop-by-category-${category.url}" class="form-label--checkbox">
-                    <span class="category-name">${category.name}</span>
-                    <span class="category-hits">${category.hits}</span>
-                </label>
-            </div>    
-        `
-
-    }
-
 
 
     function retrieveURLparams(){
-
+    
         // Get the URL
         var url = window.location.href;
-
+        url = url.replaceAll('#', '')
+    
         // Find the part of the URL after the '?'
         const splittedURL = url.split('?')
-
-        
-
-
+    
         let queryString = splittedURL[0]
-
-
-        // Get the URL from the browser's address bar
-        
+    
+        // Get the URL from the browser's address bar    
         // Create a new URL object
         var parsedUrl = new URL(url);
         
@@ -1203,47 +1377,69 @@ function scrollToTop() {
         let basePath = protocol+'//'+hostname+'/'
         queryString = queryString.replaceAll(basePath, '')
         // Split the query string using '/' as the separator
-        const queryParts = queryString.split('/');
-                
-console.log(queryParts)
+        const queryPartsSplittedByVehicle = queryString.split('/v/');
+        const queryPartsBeforeVehicle = queryPartsSplittedByVehicle[0].split('/');
+        const queryParts =queryPartsBeforeVehicle
+        const allFilters = ["brand", "category", "prices", "parent-category"] 
+        
         // Iterate through the query parts to extract values
-        for (let i = 0; i < queryParts.length; i += 2) {
+        
+        customYmm['selectedCategories']=[]
+        
+        for (let i = 0; i < queryPartsBeforeVehicle.length; i++) {
           let key = queryParts[i];
           let value = queryParts[i + 1]
-            console.log("keybalur")
-            console.log(key, value)
+
           if (key === "category") {
-            var category = value;
-            category =  value.replaceAll('%3E', '/') 
-            customYmm['selectedCategory'] = category 
-            customYmm['selectedCategories'].push(category); 
+            for(j=i+1; j<queryPartsBeforeVehicle.length;j++){
+              if(allFilters.includes(queryParts[j])){
+                break;
+              }else{
+                category =  queryParts[j]
+                if(category.trim().length > 0){
+                  customYmm['selectedCategory'] = category 
+                  customYmm['selectedCategories'].push(category); 
+                }
+              }
+            }
           } else if (key === "brand" || key === "q" && customYmm['isInBrandPage']) {
             // brand = value;
-            customYmm['selectedBrands'].push(value.replaceAll('_', ' '))
+            customYmm['selectedBrands'].push(value.replaceAll('+', ' '))
           } else if (key === "prices") {
             // prices = value;
             customYmm['selectedPrices'].push(value) 
-          } else if(key === "v"){
-              value = value.replaceAll('%3E', '>');
-               let [selectedYear=false, selectedMake=false, selectedModel=false] 
-                    = value.split('>').map(e=>e.replaceAll('_', ' '))
-            customYmm['search-page-ymm-form-container']['selections'] = {
-                year: selectedYear,
-                make: selectedMake,
-                model: selectedModel
-            }
-            manageHighlighted('search-page-ymm-form-container')
+          }else if(key === "parent-category"){
+            customYmm['super_category'] = value
           }
+          
         }
-
-        if(customYmm['selectedCategories'].length > 0)
+        console.log("prachanda 12345")
+        if(queryPartsSplittedByVehicle.length > 1){
+        
+            const queryPartsAfterVehicle = queryPartsSplittedByVehicle[1]
+            console.log('queryPartsAfterVehicle', queryPartsAfterVehicle)
+            if(queryPartsAfterVehicle.length > 0){
+                var value = queryPartsAfterVehicle
+                let [selectedYear=false, selectedMake=false, selectedModel=false, selectedEngine = '', selectedTransmission = ''] 
+                        = value.split('/').filter(a => a.trim().length >0).map(e=>e.replaceAll('+', ' '))
+                customYmm['search-page-ymm-form-container']['selections'] = {
+                    year: selectedYear,
+                    make: selectedMake,
+                    model: selectedModel,
+                    engine: selectedEngine,
+                    transmission: selectedTransmission
+                }
+                manageHighlighted('search-page-ymm-form-container')
+            }
+        }
+        
+        if(customYmm['selectedCategories'].length > 0){
             customYmm['selectedCategory'] = customYmm['selectedCategories'][customYmm['selectedCategories'].length-1];
-
+        }
     }
 
-
     function setURLparams(){
-        return;
+        
         // Get the URL from the browser's address bar
         var url = window.location.href;
         
@@ -1255,50 +1451,53 @@ console.log(queryParts)
         
         // Retrieve the hostname (website name)
         var hostname = parsedUrl.hostname;
+        
         // Find the part of the URL after the '?'
         let basePath = protocol+'//'+hostname+'/a/search/'
-
+        
         let tail = ''
-
+        
         if(customYmm['selectedCategory']){
-
-            customYmm['selectedCategories'].forEach(selectedCategory => {
-                var value = selectedCategory
-                tail += `category/${value.replace(/^\/|\/$/g, '').replace(/\//g, '>')}/`;
-
-            })
-
+            tail += `category/${customYmm['selectedCategories'].join('/')}/`;
         }
 
-        if(customYmm["selectedBrands"].length > 0)
-            tail += `brand/${customYmm['selectedBrands'].map(b=>b.replaceAll(' ', '_')).join(',')}/`
-
-        if(customYmm['selectedPrices'].length > 0)
+        if(customYmm['super_category'] !== false){
+          tail += `parent-category/${customYmm['super_category']}/`;
+        }
+        
+        if(customYmm["selectedBrands"].length > 0){
+            tail += `brand/${customYmm['selectedBrands'].map(b=>b.replaceAll(' ', '+')).join(',')}/`
+        }
+    
+        if(customYmm['selectedPrices'].length > 0){
             tail += `prices/${customYmm['selectedPrices'].join(',')}/`
-
-        if(customYmm['isInCategoryPage'] || customYmm['isInSearchPage']){
-            let [selectedYear, selectedMake, selectedModel, selectedEngine ] = returnSelections('search-page-ymm-form-container')
-            let ymmdfn = [selectedYear, selectedMake, selectedModel, selectedEngine]
-            ymmdfn = ymmdfn.filter(e=> (e !== false && e!== '')).map(ee=>ee.replaceAll(' ', '_'))
+        }
+    
+        if(customYmm['isInCategoryPage'] || customYmm['isInSearchPage'] || customYmm['isInBrandPage'] ){
+            let [selectedYear, selectedMake, selectedModel, selectedEngine, selectedTransmission] = returnSelections('search-page-ymm-form-container')
+            let ymmdfn = [selectedYear, selectedMake, selectedModel, selectedEngine, selectedTransmission]
+            ymmdfn = ymmdfn.filter(e=> (e !== false && e!== ''))
+            ymmdfn = ymmdfn.map(v => v.replaceAll(' ', '+'))
             if(ymmdfn.length){
-                tail += `v/${ymmdfn.join('>')}/`
+                tail += `v/${ymmdfn.join('/')}/`
             }
         }
-
+        if(customYmm['searchQuery'].trim().length > 0){
+            tail += `?q=${customYmm['searchQuery']}`
+        }
+    
         if(tail.trim().length > 0)
         basePath +=  tail
-
-        // history.replaceState({}, '', basePath)
-
+    
+        history.replaceState({}, '', basePath)
+    
     }
-
-
 
     function assignListenerToTheCheckBoxes(){
 
 
         // Get all checkboxes with the class "cb-filter"
-        const checkboxes = document.querySelectorAll('.cb-filter');
+        const checkboxes = document.querySelectorAll('.cb-filter-mandatory-filters');
 
         // Function to handle the change event
         function handleCheckboxChange(event) {
@@ -1307,7 +1506,7 @@ console.log(queryParts)
 
             customYmm.loadMore = true
             if(event.target.getAttribute("data-filter-type") == "category"){
-                
+        
                 uncheckSiblingsAndHideChildren(event.target)
 
             }
@@ -1329,6 +1528,8 @@ console.log(queryParts)
                     const selectedCategoryId = checkedCheckbox.getAttribute('data-category-url')
                     
                     const categoryName = checkedCheckbox.getAttribute('data-category-name')
+
+                    
                     
                     selectedCategories.push(selectedCategoryId);
                     
@@ -1359,7 +1560,6 @@ console.log(queryParts)
                 // console.log(selectedCategories)
                 customYmm["selectedCategory"] = selectedCategories[selectedCategories.length-1]
                 
-            
             }else{
 
                 customYmm["selectedCategory"] = false
@@ -1418,13 +1618,16 @@ console.log(queryParts)
     }
 
     function displayCategories(categories){
+        if(customYmm['subCategories'].length){
+          return
+        }
         categories = categories.filter(c => parseInt(c.include_on_left_column_filter) === 1 )
         if(categories.length > 0){
             const hierarchicalData = categories;
             document.querySelector('.ymm-categories').innerHTML = `
                 <div class="collapsible-wrapper">
                     <div class="collapsible-title-icon" onclick="hideOrShowCollapsibleContent(event)" >
-                        <h3>Part Type</h3>
+                        <h3>Part Types</h3>
                         <div class="collapsible-toggle-icon">${returnArrowLeft()}</div>
                     </div>
                     <div class="collapsible-content">
@@ -1438,14 +1641,77 @@ console.log(queryParts)
     }       
 
     // arrayFormunction to render the tree
-            
+
+    function displayEachCategory(category){
+
+        return`
+            <div class="ymm-categories-item">
+                ${renderCheckbox(category)}
+
+                <label for="shop-by-category-${category.url}" class="form-label--checkbox">
+                    <span class="category-name">${category.name}</span>
+                    <span class="category-hits">${category.hits}</span>
+                </label>
+            </div>    
+        `
+    }
+
+    function renderCaretIcon(){
+      return`
+        <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="800px" height="800px" viewBox="0 0 256 256" id="Flat">
+          <path d="M128,188a11.96187,11.96187,0,0,1-8.48535-3.51465l-80-80a12.0001,12.0001,0,0,1,16.9707-16.9707L128,159.0293l71.51465-71.51465a12.0001,12.0001,0,0,1,16.9707,16.9707l-80,80A11.96187,11.96187,0,0,1,128,188Z"/>
+        </svg>
+      `
+    }
+  
+    function displayEachCategoryWithCaretIcon(category){
+
+        const ymmCategoriesItem = document.createElement('div')
+        ymmCategoriesItem.className = "ymm-categories-item"
+        ymmCategoriesItem.addEventListener('click', () => {
+          ymmCategoriesItem.closest('.category-holder').classList.toggle('suboptions-opening')
+        })
+      
+        ymmCategoriesItem.innerHTML = `
+                <span class="icon-caret-wrapper">
+                  ${renderCaretIcon()}
+                </span>
+                <label  class="form-label--checkbox">
+                    <span class="category-name">${category.name}</span>
+                    <span class="category-hits">${category.hits}</span>
+                </label>
+        `
+        return ymmCategoriesItem
+    }
+
+
     function renderTree(categoryTree, container) {
-            
+
+      categoryTree =    categoryTree.sort((a, b) => {
+              // First compare by children length in descending order
+              const lengthDiff = b.children.length - a.children.length;
+              if (lengthDiff !== 0) {
+                  return lengthDiff;
+              }
+              // If children length is the same, compare by name alphabetically
+              return a.name.localeCompare(b.name);
+          });
+      
         categoryTree.forEach(category => {
 
             const categoryHolder = document.createElement('li')
 
-            categoryHolder.innerHTML = displayEachCategory(category)
+            categoryHolder.className = "category-holder"
+ 
+            for(const subCat of category.children){
+              customYmm["selectedCategories"].includes(subCat.url) && categoryHolder.classList.add('suboptions-opening')
+            }
+          
+            if(category.children.length === 0){
+              categoryHolder.innerHTML = displayEachCategory(category)
+            }else{
+              categoryHolder.appendChild(displayEachCategoryWithCaretIcon(category))
+            }
 
             container.appendChild(categoryHolder)
 
@@ -1453,7 +1719,7 @@ console.log(queryParts)
 
                 const childrenContainer = document.createElement('ul');
 
-                childrenContainer.className = `tree  ${customYmm["selectedCategories"].includes(category.url) ? '' : 'hidden' } `;
+                childrenContainer.className = `tree `;
 
                 categoryHolder.appendChild(childrenContainer);
 
@@ -1536,13 +1802,15 @@ console.log(queryParts)
 
         document.body.appendChild(filtersWrapperMobile);           
 
-
     }
         
 /****************** whole global object *******************************/
 
     const customYmm = {}
     
+    customYmm['subCategories'] = [];
+    customYmm['super_category'] = false
+    customYmm['customFieldsSelections'] = {}
     customYmm['sortBy'] = 'default';
 
     customYmm["priceIdsAndLabels"] = {
@@ -1585,9 +1853,9 @@ console.log(queryParts)
 
         customYmm['selectedCategoryURLVsName']= {};        
 
-        customYmm['outerYmmFolder'] = 'https://auto.searchalytics.com/rudys-diesel-backend'
-
-        customYmm['ymmDomain'] = 'https://auto.searchalytics.com/rudys-diesel-backend/integration'
+        // customYmm['outerYmmFolder'] = 'https://auto.searchalytics.com/rudys-diesel-backend'
+                
+        customYmm['ymmDomain'] = 'https://rudys-searchauto.searchalytics.com/rudys-diesel-backend/integration'
 
         customYmm["ymmOnlyApi"] =  customYmm['ymmDomain'] + "/provide-ymm-data-only.php"
 
@@ -1615,7 +1883,7 @@ console.log(queryParts)
     customYmm["productPageWrapper"] = ".productView-info"
     customYmm["homePageWrapper"] = "#search_auto_home_page_widget"
     customYmm["shopPageWrapper"] = "#searchAutoShopPage"
-    customYmm["searchPageWrapper"] = "#search_auto_search_page_widget"
+    customYmm["searchPageWrapper"] = "#searchpagewrapper"
     customYmm["subCatContainerForCategoryPage"] = "#subcats-container"
 
     customYmm["brandPageWrapper"] = "#search_auto_search_page_widget"
@@ -1684,7 +1952,7 @@ console.log(queryParts)
                     </div>
                     
                     <div class="verify-fitment_body">
-                        <a class = "ymm-link" onclick = "displayYMMformFromBody()">Change Vechicle</a> 
+                        <a class = "ymm-link" onclick = "displayYMMformFromBody()">Change Vehicle</a> 
                     </div>
                 </div>
             </div>
@@ -1726,7 +1994,7 @@ console.log(queryParts)
 
         const fitmentResultClass = "fitment-result"
 
-        let [selectedYear, selectedMake, selectedModel, selectedEngine] = returnSelections(containerId)
+        let [selectedYear, selectedMake, selectedModel, selectedEngine, selectedTransmission] = returnSelections(containerId)
 
         carrySelectedVehicle();
 
@@ -1739,7 +2007,8 @@ console.log(queryParts)
                 (selectedYear >= parseInt(fitmentData.from_year) && selectedYear <= parseInt(fitmentData.to_year)) &&
                 selectedMake == fitmentData.make.trim() &&
                 selectedModel == fitmentData.model.trim() && 
-                (selectedEngine == '' || fitmentData.engine.trim() == '' || selectedEngine == fitmentData.engine.trim())
+                (selectedEngine == '' || fitmentData.engine.trim() == '' || selectedEngine == fitmentData.engine.trim()) &&
+                (selectedTransmission == '' || fitmentData.transmission.trim() == '' || selectedTransmission == fitmentData.transmission.trim())
             ) {
                 fits = true;
                 return; // Exit the loop early since we found a fit
@@ -1752,7 +2021,7 @@ console.log(queryParts)
                 `
                     <span class="selected-ymm selected-ymm-vq"> 
                         <span class="selected-ymm-ymm">
-                            ${selectedYear} ${selectedMake} ${selectedModel}  ${selectedEngine}
+                            ${selectedYear} ${selectedMake} ${selectedModel}  ${selectedEngine} ${selectedTransmission}
                         </span>
                     </span>
                 `
@@ -1762,7 +2031,7 @@ console.log(queryParts)
             targetElement.innerHTML = returnDoesNotFitMessage(`
                 <span class="selected-ymm selected-ymm-vq"> 
                     <span class="selected-ymm-ymm">
-                        ${selectedYear} ${selectedMake} ${selectedModel}  ${selectedEngine}
+                        ${selectedYear} ${selectedMake} ${selectedModel}  ${selectedEngine} ${selectedTransmission}
                     </span>
                 </span>
             `);
@@ -1782,7 +2051,7 @@ console.log(queryParts)
 
     const decideWhatHappensAfterFormChangeInProductPage = async (containerId) => {
 
-        let [selectedYear, selectedMake, selectedModel, selectedEngine] = returnSelections(containerId)
+        let [selectedYear, selectedMake, selectedModel, selectedEngine, selectedTransmission] = returnSelections(containerId)
         
         let dropdowns = await fetchYmmOnlyDataAndRender(containerId);
 
@@ -1792,7 +2061,8 @@ console.log(queryParts)
             (
                 (dropdowns.makes.length && selectedMake == false ) ||
                 (dropdowns.models.length && selectedModel == false ) ||
-                (dropdowns.engines.length && selectedEngine == '')
+                (dropdowns.engines.filter(e => e.key.length > 0).length && selectedEngine == '') ||
+                (dropdowns.transmissions.filter(e => e.key.length > 0).length && selectedTransmission == '')
             ) ||
             (
                 selectedMake == false || 
@@ -1806,7 +2076,6 @@ console.log(queryParts)
             saveOrGoforProductPage(containerId);
             removeHighlighted(containerId)
         } 
-        
     }
     
     function addHighlighted(containerId, selectTagClass){
@@ -1860,9 +2129,11 @@ console.log(queryParts)
                         customYmm[`${containerId}`].selections.make = false
                         customYmm[`${containerId}`].selections.model = false
                         customYmm[`${containerId}`].selections.engine = ''
+                        customYmm[`${containerId}`].selections.transmission = ''
                         disableSelectTag(containerId, "select-make")
                         disableSelectTag(containerId, "select-model")
                         disableSelectTag(containerId, "select-engine")
+                        disableSelectTag(containerId, "select-transmission")
                         disableSelectTag(containerId, "btn-go")
                         
                     break;
@@ -1871,6 +2142,8 @@ console.log(queryParts)
                         customYmm[`${containerId}`].selections.make = selectTag.value
                         customYmm[`${containerId}`].selections.model = false
                         customYmm[`${containerId}`].selections.engine = ''
+                        customYmm[`${containerId}`].selections.transmission = ''
+                        disableSelectTag(containerId, "select-transmission")
 
                         disableSelectTag(containerId, "select-model")
                         disableSelectTag(containerId, "select-engine")
@@ -1880,6 +2153,8 @@ console.log(queryParts)
                     case "select-model":
                         customYmm[`${containerId}`].selections.model = selectTag.value
                         customYmm[`${containerId}`].selections.engine = ''
+                        customYmm[`${containerId}`].selections.transmission = ''
+                        disableSelectTag(containerId, "select-transmission")
 
                         disableSelectTag(containerId, "select-engine")
                         enableSelectTag(containerId, "btn-go")
@@ -1887,6 +2162,10 @@ console.log(queryParts)
 
                     case "select-engine":
                         customYmm[`${containerId}`].selections.engine = selectTag.value
+                    break;    
+
+                    case "select-transmission":
+                        customYmm[`${containerId}`].selections.transmission = selectTag.value
                     break;    
 
                 }
@@ -1918,6 +2197,7 @@ console.log(queryParts)
         customYmm[`${containerId}`].selections.make = false
         customYmm[`${containerId}`].selections.model = false
         customYmm[`${containerId}`].selections.engine = ''
+        customYmm[`${containerId}`].selections.transmission = ''
 
         
         enableSelectTag(containerId, "select-year")
@@ -1928,6 +2208,8 @@ console.log(queryParts)
         resetSelectTag(containerId, "select-model")
         disableSelectTag(containerId, "select-engine")
         resetSelectTag(containerId, "select-engine")
+        disableSelectTag(containerId, "select-transmission")
+        resetSelectTag(containerId, "select-transmission")
                 
         disableSelectTag(containerId, "btn-go")
         disableSelectTag(containerId, "btn-clear")
@@ -1955,9 +2237,45 @@ console.log(queryParts)
         setURLparams()
         
         if(customYmm['hideProductsUntilSelected'] === false){
+            customYmm.currentPage = 1
             fetchProductsAndRender(true)
         }
+
+        if(customYmm['isInCategoryPage']){
+          fetchSubCategoriesAndRender()
+        }
         
+    }
+
+    function shouldYMMformBeHidden(){
+       
+        let hideYmmForm = false;
+
+        let collectionsToHide = [];
+
+        if(document.querySelector('.collection-to-hide')){
+            document.querySelectorAll('.collection-to-hide').forEach(i => collectionsToHide.push(i.value))
+        }
+
+        if(customYmm['isInCategoryPage']){
+            if(document.querySelector('.category-handle-for-ymm-widget-visibility-customization')){
+                const current_category = document.querySelector('.category-handle-for-ymm-widget-visibility-customization').value
+                if(collectionsToHide.includes(current_category)){
+                    hideYmmForm = true
+                }
+            }
+        }else if(customYmm['isInProductPage']){
+            var collectionsThisProductLiesIn = [];
+            if(document.querySelector('.collection-this-product-lies-in')){
+                document.querySelectorAll('.collection-this-product-lies-in').forEach(i => collectionsThisProductLiesIn.push(i.value))
+            }
+            var filtered = collectionsThisProductLiesIn.filter(c => collectionsToHide.includes(c) )
+            if(filtered.length){
+                hideYmmForm = true
+            }
+        }
+
+        return hideYmmForm
     }
 
 
@@ -1966,13 +2284,13 @@ console.log(queryParts)
         customYmm[`${containerId}`] = {}
 
         customYmm[`${containerId}`]["years"] = customYmm['years'];
-
         customYmm[`${containerId}`]["makes"] = []
-        
         customYmm[`${containerId}`]["models"] = []
+        customYmm[`${containerId}`]["engines"] = []
+        customYmm[`${containerId}`]["transmissions"] = []
         
-        customYmm[`${containerId}`]["selections"] = {year: false, make: false, model: false, engine: ''}
-        
+        customYmm[`${containerId}`]["selections"] = {year: false, make: false, model: false, engine: '', transmission: ''}
+
         return`
 
             <div class="ymm-form-container" id= "${containerId}">
@@ -1980,28 +2298,37 @@ console.log(queryParts)
                 <div class="ymm-form-select-items">
                 
                     <div class="year ymm-form-select">
-                        <select data-type = "select-year" class="select-year ymm-select ymm-select-selected">
-                            <option>Year</option>
+                    <label class="hidden" for="select-year">Select Year</label>
+                        <select id="select-year" data-type = "select-year" class="select-year ymm-select ymm-select-selected">
+                            <option>Select Year</option>
                         </select>
                     </div>
         
                     <div class="make ymm-form-select">
-                        <select data-type="select-make" class="select-make ymm-select" disabled>
-                            <option>Make</option>
+                    <label class="hidden" for="select-make">Select Make</label>
+                        <select id="select-make" data-type="select-make" class="select-make ymm-select" disabled>
+                            <option>Select Make</option>
                         </select>
                     </div>
         
                     <div class="model ymm-form-select">
-                        <select data-type = "select-model" class="select-model ymm-select" disabled>
-                            <option>Model</option>
+                    <label class="hidden" for="select-model">Select Model</label>
+                        <select id="select-model" data-type = "select-model" class="select-model ymm-select" disabled>
+                            <option>Select Model</option>
                         </select>
                     </div>
                     
-
+                    ${containerId == 'ymm-add-to-garage-form-modal' ? '<div style="display:none" class="optional-text">Optional</div>' : '' }
                     
-                    <div class="engine ymm-form-select" ${containerId == 'custom-ymm-form-for-home-page' ? 'style="display:none"' :''}>
+                    <div style="display:none" class="engine ymm-form-select" >
                         <select data-type = "select-engine" class="select-engine ymm-select" disabled>
-                            <option>Engine</option>
+                            <option>Select Engine</option>
+                        </select>
+                    </div>
+
+                    <div style="display:none" class="transmission ymm-form-select" >
+                        <select data-type = "select-transmission" class="select-transmission ymm-select" disabled>
+                            <option>Select Transmission</option>
                         </select>
                     </div>
 
@@ -2014,7 +2341,7 @@ console.log(queryParts)
                             <button class ="button button-secondary btn-clear" disabled> Clear </button>
                         </div>
                         <div class = "ymm-go-btn">
-                            <button class ="button button-primary btn-go" disabled>Go</button>
+                            <button class ="button button-primary btn-go" disabled>Shop Now</button>
                         </div>
                     </div>
                     
@@ -2046,14 +2373,14 @@ console.log(queryParts)
         // fill up the year slect tag
 
         document.querySelector(`#${withContainerId}`).querySelector('.select-year').innerHTML = 
-        createOptionTag({label: 'Year', key: 'Year'}) + customYmm[`${withContainerId}`]["years"].map(year => createOptionTag({label:year, key:year})).join('')
+        createOptionTag({label: 'Year', key: 'year'}, withContainerId) + customYmm[`${withContainerId}`]["years"].map(year => createOptionTag({label:year, key:year})).join('')
 
     }
 
     async function fetchYmmOnlyDataAndRender(containerId){
         
         try{
-            const response = await fetch(`${customYmm["ymmOnlyApi"]}?engine=${customYmm[containerId].selections.engine}&category=${customYmm["selectedCategory"]}&year=${customYmm[containerId].selections.year}&make=${customYmm[containerId].selections.make}&model=${customYmm[containerId].selections.model}`)
+            const response = await fetch(`${customYmm["ymmOnlyApi"]}?transmission=${customYmm[containerId].selections.transmission}&engine=${customYmm[containerId].selections.engine}&category=${customYmm["selectedCategory"]}&year=${customYmm[containerId].selections.year}&make=${customYmm[containerId].selections.make}&model=${customYmm[containerId].selections.model}`)
             const responseJson = await response.json()
             displayMakesAndModels(responseJson, containerId)
             return responseJson;
@@ -2086,9 +2413,22 @@ console.log(queryParts)
     
     function createOptionTag(obj, containerId = false){
         let selected = false
+
         if(containerId != false && obj.label.toString().trim().length > 0 ){
             if(Object.values(customYmm[`${containerId}`]["selections"]).map(v => v.toString().trim()).includes(obj.label.toString().trim())) selected = true
         }
+        if(containerId && (obj.key == 'year' || obj.key == 'make' || obj.key == 'model' || obj.key == 'engine' || obj.key == 'transmission' ) ) {
+
+          if (obj.key in customYmm[`${containerId}`]["selections"]) {
+              // Key exists, you can safely access it
+              let value = customYmm[`${containerId}`]["selections"][obj.key];
+              // Do something with value
+              if( !(value == false || value == '') ){
+                return ``     
+              }
+          }
+        }
+      
         return `
             <option value = "${obj.label}" ${selected ? 'selected' : ''} >${obj.label}</option>
         `
@@ -2116,11 +2456,14 @@ console.log(queryParts)
         customYmm[`${containerId}`]["makes"] =  data.makes.sort((a,b) => a.key.localeCompare(b.key) ).filter(m => m.key.length > 0)
         customYmm[`${containerId}`]["models"] =  data.models.sort((a,b) => a.key.localeCompare(b.key) ).filter(m => m.key.length > 0)
         customYmm[`${containerId}`]["engines"] =  data.engines.sort((a,b) => a.key.localeCompare(b.key) ).filter(m => m.key.length > 0)
+        customYmm[`${containerId}`]["transmissions"] =  data.transmissions.sort((a,b) => a.key.localeCompare(b.key) ).filter(m => m.key.length > 0)
         
-        // customYmm[`${containerId}`]["makes"] =  data.makes.sort((a,b) => a.key.localeCompare(b.key) )
-        // customYmm[`${containerId}`]["models"] =  data.models.sort((a,b) => a.key.localeCompare(b.key) )
-        // customYmm[`${containerId}`]["engines"] =  data.engines.sort((a,b) => a.key.localeCompare(b.key) )
-        
+        if( containerId == 'ymm-add-to-garage-form-modal' && (customYmm[`${containerId}`]["engines"].length || customYmm[`${containerId}`]["transmissions"].length) ){
+            document.querySelector('.optional-text').style.display="block"
+        }else{
+            document.querySelector('.optional-text').style.display="none"
+        }
+
         if(customYmm[`${containerId}`]['selections']['year']){
             var year = customYmm[`${containerId}`]['selections']['year']
             var selectElement = document.querySelector(`#${containerId} .select-year`);
@@ -2141,9 +2484,9 @@ console.log(queryParts)
         if(customYmm[`${containerId}`]["makes"].length > 0 && customYmm[`${containerId}`].selections.year != false){
 
             enableSelectTag(containerId, "select-make")
-            console.log("makes in customYmm containerId", customYmm[`${containerId}`]["makes"])
+            // console.log("makes in customYmm containerId", customYmm[`${containerId}`]["makes"])
             document.querySelector(`#${containerId}`).querySelector('.select-make').innerHTML = 
-            createOptionTag({label: 'Make', key: 'make'}) + customYmm[`${containerId}`]["makes"].map(make => createOptionTag(make, containerId)).join('')
+            createOptionTag({label: 'Make', key: 'make'}, containerId) + customYmm[`${containerId}`]["makes"].map(make => createOptionTag(make, containerId)).join('')
 
         }
         
@@ -2151,17 +2494,30 @@ console.log(queryParts)
 
             enableSelectTag(containerId, "select-model")
             document.querySelector(`#${containerId}`).querySelector('.select-model').innerHTML = 
-            createOptionTag({label: 'Model', key: 'model'}) + customYmm[`${containerId}`]["models"].map(model => createOptionTag(model, containerId)).join('')            
+            createOptionTag({label: 'Model', key: 'model'}, containerId) + customYmm[`${containerId}`]["models"].map(model => createOptionTag(model, containerId)).join('')            
             
         }
 
-        if(customYmm[`${containerId}`].selections.model == false  ) return
+        // if(customYmm[`${containerId}`].selections.model == false  ) return
         // need to return even when we are in the home page because we won't be displaying other qualifiers in the home page
- 
+        if(containerId == 'custom-ymm-form-for-home-page') return
+
         if(customYmm[`${containerId}`]["engines"].filter(e => e.key.toString().length > 0).length > 0 && customYmm[`${containerId}`].selections.model != false){
+            displaySelectTag(containerId, "select-engine")
             enableSelectTag(containerId, "select-engine")
             document.querySelector(`#${containerId}`).querySelector('.select-engine').innerHTML = 
-            createOptionTag({label: 'Engine', key: 'engine'}) + customYmm[`${containerId}`]["engines"].filter(e=>e.toString().trim().length > 0).map(engine => createOptionTag(engine, containerId)).join('')                        
+            createOptionTag({label: 'Engine', key: 'engine'}, containerId) + customYmm[`${containerId}`]["engines"].filter(e=>e.toString().trim().length > 0).map(engine => createOptionTag(engine, containerId)).join('')                        
+        }else{
+            hideSelectTag(containerId, "select-engine")
+        }
+
+        if(customYmm[`${containerId}`]["transmissions"].filter(e => e.key.toString().length > 0).length > 0 && customYmm[`${containerId}`].selections.model != false){
+            displaySelectTag(containerId, "select-transmission")
+            enableSelectTag(containerId, "select-transmission")
+            document.querySelector(`#${containerId}`).querySelector('.select-transmission').innerHTML = 
+            createOptionTag({label: 'Transmission', key: 'transmission'}, containerId) + customYmm[`${containerId}`]["transmissions"].filter(e=>e.toString().trim().length > 0).map(engine => createOptionTag(engine, containerId)).join('')                        
+        }else{
+            hideSelectTag(containerId, "select-transmission")
         }
 
     }
@@ -2183,14 +2539,16 @@ console.log(queryParts)
 
         const newDiv =document.createElement('div')
         newDiv.className="form-fitment-wrapper";
-        
+        if(shouldYMMformBeHidden()){
+            newDiv.style.display="none";
+        }
         // Insert the new div after the existing div
         // existingDiv.insertAdjacentElement('afterend', newDiv);
         existingDiv.appendChild(newDiv);
         
         newDiv.innerHTML = `
 
-            <div class = "our-own-wrapper">
+            <div class = "our-own-wrapper" ${shouldYMMformBeHidden() ? 'style="display:none"' : ''}>
                 <div class = "custom-ymm-form-body">
                     <div class="verify-fitment-heading">
                         <div class="verify-fitment-icon">
@@ -2347,14 +2705,36 @@ console.log(queryParts)
         return false;
     }
 
+    function isTransmissionExists(){
+        for(var i=0; i < customYmm["fitmentData"].length; i++){
+            var data = customYmm["fitmentData"][i];
+            if(data.transmission.trim().length > 0){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
     function returnEngineTH(){
         if(isEngineExists()) return '<th>Engine</th>'
+        return ''
+    }
+
+    function returnTransmissionTH(){
+        if(isTransmissionExists()) return '<th>Transmission</th>'
         return ''
     }
 
     function returnEngineTD(d){
         if(isEngineExists()) return `<td>${d.toString().trim().length > 0 ? d : '&nbsp;'}</td>`
         return ''
+    }
+
+    function returnTransmissionTD(d){
+        if(isTransmissionExists()) return `<td>${d.toString().trim().length > 0 ? d : '&nbsp;'}</td>`
+        return ''        
     }
 
     function displayFitmentTable(){
@@ -2388,6 +2768,7 @@ console.log(queryParts)
                                         <th>Make</th>
                                         <th>Model</th>
                                         ${returnEngineTH()}
+                                        ${returnTransmissionTH()}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -2399,6 +2780,7 @@ console.log(queryParts)
                                                 <td>${data.make}</td>
                                                 <td>${data.model}</td>
                                                 ${returnEngineTD(data.engine)}
+                                                ${returnTransmissionTD(data.transmission)}
                                             </tr>
                                         `
                                     }).join(' ')}
@@ -2444,8 +2826,10 @@ console.log(queryParts)
                 const selectedYear = lastSelectedVehicle.year
                 const selectedMake = lastSelectedVehicle.make
                 const selectedModel = lastSelectedVehicle.model
+                const selectedEngine = lastSelectedVehicle.engine
+                const selectedTransmission = lastSelectedVehicle.transmission
                 
-                document.querySelector('#selected_vehicle').value = selectedYear + ' ' + selectedMake + ' ' + selectedModel
+                document.querySelector('#selected_vehicle').value = selectedYear + ' ' + selectedMake + ' ' + selectedModel + ' ' + selectedEngine + ' ' + selectedTransmission
                 
             }
 
@@ -2456,11 +2840,18 @@ console.log(queryParts)
 
 
     
-    
+    function hideFitmentTab(){
+        if(document.querySelector('a[href="#tab-fitment"]')){
+            document.querySelector('a[href="#tab-fitment"]').remove()
+        }
+        if(document.querySelector('#tab-fitment')){
+            document.querySelector('#tab-fitment').remove()
+        }
+    }
 
  function setupForProductPage(){
 
-        if(document.querySelector('.selected_vehicle')){
+        if(document.querySelector('#selected_vehicle')){
             carrySelectedVehicle();
         }
         if(!document.querySelector('#product-id-search-auto')){
@@ -2477,22 +2868,29 @@ console.log(queryParts)
             createRequiredWrappersForProductPage()
 
             if(customYmm["fitmentData"].length && parseInt(customYmm["fitmentData"][0].is_universal) === 1 ){
-                document.querySelector('.verify-fitment-header-text').style.display="none"
+                hideFitmentTab()
+                document.querySelector('.verify-fitment-heading').style.display="none"
                 document.querySelector('.fitment-result').innerHTML = `
-                    <div id="cm_VerifyFitment"><div class="cm_vehicle-widget cm_vehicle-widget__verify-fitment cm_row cm_vehicle-widget__row"><div class="cm_vehicle-widget_label cm_verify-fitment cm_verify-fitment__universal cmTemplate_universal"><div class="cm_verify-fitment_icon"><svg class="cm_icon cm_icon-check" height="20px" role="image" viewBox="0 0 492 492"><path d="m484.13 104.48-16.116-16.116c-5.064-5.068-11.816-7.856-19.024-7.856s-13.964 2.788-19.028 7.856l-226.45 226.45-141.48-141.49c-5.064-5.06-11.82-7.852-19.028-7.852-7.204 0-13.956 2.792-19.024 7.852l-16.12 16.112c-5.068 5.076-7.852 11.836-7.852 19.036 0 7.204 2.784 13.96 7.852 19.028l159.74 159.74c0.212 0.3 0.436 0.58 0.696 0.836l16.12 15.852c5.064 5.048 11.82 7.572 19.084 7.572h0.084c7.212 0 13.968-2.524 19.024-7.572l16.124-15.992c0.26-0.256 0.48-0.468 0.612-0.684l244.78-244.76c10.5-10.476 10.5-27.52 4e-3 -38.008z"></path></svg></div><div class="cm_verify-fitment_fitment"><div class="cm_verify-fitment_title">Universal Fit</div><div class="cm_verify-fitment_notes">This product may require modification.</div></div></div></div></div>
+                    <div id="cm_VerifyFitment"><div class="cm_vehicle-widget cm_vehicle-widget__verify-fitment cm_row cm_vehicle-widget__row"><div class="cm_vehicle-widget_label cm_verify-fitment cm_verify-fitment__universal cmTemplate_universal"><div class="cm_verify-fitment_icon"><svg class="cm_icon cm_icon-check" height="20px" role="image" viewBox="0 0 492 492"><path d="m484.13 104.48-16.116-16.116c-5.064-5.068-11.816-7.856-19.024-7.856s-13.964 2.788-19.028 7.856l-226.45 226.45-141.48-141.49c-5.064-5.06-11.82-7.852-19.028-7.852-7.204 0-13.956 2.792-19.024 7.852l-16.12 16.112c-5.068 5.076-7.852 11.836-7.852 19.036 0 7.204 2.784 13.96 7.852 19.028l159.74 159.74c0.212 0.3 0.436 0.58 0.696 0.836l16.12 15.852c5.064 5.048 11.82 7.572 19.084 7.572h0.084c7.212 0 13.968-2.524 19.024-7.572l16.124-15.992c0.26-0.256 0.48-0.468 0.612-0.684l244.78-244.76c10.5-10.476 10.5-27.52 4e-3 -38.008z"></path></svg></div><div class="cm_verify-fitment_fitment"><div class="verify-fitment_title">Universal Fit</div><div class="cm_verify-fitment_notes">This product may require modification.</div></div></div></div></div>
                 `
+                if(document.querySelector('a[href="#tab-fitment"]')){
+                    document.querySelector('a[href="#tab-fitment"]').closest('li').remove()
+                }
                 return
             }
 
             displayFitmentTable();
 
             if(customYmm["fitmentData"].length == 0){
-
+                hideFitmentTab()
                 // no fitment data for this product
 
                 // hide ymm form
-                hideYMMFformFromBody()
-
+                  hideYMMFformFromBody()
+                var storePhoneNumber = '866-757-6537'
+                  if(document.querySelector('#store-phone-number')){
+                    storePhoneNumber = document.querySelector('#store-phone-number').value
+                  }
                 document.querySelector('.fitment-result').innerHTML = `
 
                     <div class = "ymm-fitment-result-table">
@@ -2502,7 +2900,8 @@ console.log(queryParts)
                             </div>
                             <div class = "ymm-fitment-message">
                                 <div class="lacks-data-header">VERIFY YOUR FITMENT</div>
-                                <div class="lacks-data-msg">This product may only fit specific applications, but we do not have the fitment in our database. Please review the description and verify fitment manually, or call us at <a href="tel:+18008234444">(800) 823-4444</a> with any questions!</div>
+                                <div class="lacks-data-msg">This product may only fit specific applications, but we do not have the fitment in our database. Please review the description and 
+                                verify fitment manually, or call us at <a href="tel:${storePhoneNumber}">${storePhoneNumber}</a> with any questions!</div>
                             </div>
                         </div>
                     </div>
@@ -2586,7 +2985,8 @@ console.log(queryParts)
                         year: ymm.year,
                         make: ymm.make,
                         model: ymm.model,
-                        engine: ymm.engine
+                        engine: ymm.engine,
+                        transmission: ymm.transmission
                     }
                 }
                 
@@ -2670,16 +3070,16 @@ console.log(queryParts)
     function fillGarageWithVehicles(){
 
         if(customYmm["garage"].length > 0 ) 
-            return customYmm["garage"].map(({selected =false, id, year, make, model, engine}) => {
+            return customYmm["garage"].map(({selected =false, id, year, make, model, engine, transmission}) => {
 
                 return`
-                    <div class  =  "each-vehicle-in-garage ${selected ? 'selected-vehicle-in-garage': ''} d-flex align-items-center ymm-justify-content-between ymm-mt-2 cursor-pointer  ">
+                    <div class="each-vehicle-in-garage ${selected ? 'selected-vehicle-in-garage': ''} d-flex align-items-center ymm-justify-content-between ymm-mt-2 cursor-pointer  ">
                         
-                        <div class = "each-vehicle-in-garage__name" data-ymm-id="${id}">
+                        <div class="each-vehicle-in-garage__name" data-ymm-id="${id}">
                             
                             <span class="selected-ymm-each selected-ymm-vq-each"> 
                                 <span class="selected-ymm-ymm-each">
-                                    <span>${year} ${make} ${model} ${engine}</span>
+                                    <span>${year} ${make} ${model} ${engine} ${transmission}</span>
                                 </span>
                             </span>
                         </div>
@@ -2773,8 +3173,8 @@ console.log(queryParts)
                 </div>
                 
                 <hr>
-                <div class = "add-vehicle-to-garage-button-wrapper ymm-text-center">
-                    <button class = "button button-primary" id = "add-vehicle-to-garage-button">
+                <div class="add-vehicle-to-garage-button-wrapper ymm-text-center">
+                    <button class="button button-primary" id = "add-vehicle-to-garage-button">
                         Add a vehicle
                     </button>
                 </div>
@@ -2830,21 +3230,17 @@ console.log(queryParts)
         })
 
         document.querySelector('#clear-garage-span').addEventListener('click', () => {
-
             customYmm["garage"] = []
             setCookie("garage", JSON.stringify(customYmm["garage"]))
             setupGarage(true)
-
+            clearYmmForm('search-page-ymm-form-container')
         })
 
 
         Array.from(document.querySelectorAll('.each-vehicle-in-garage__name')).forEach(ymm => {
 
             ymm.addEventListener('click', event => {
-
                 decideWhereToGoWhenGarageItemClicked(ymm.getAttribute("data-ymm-id"))
-            
-
             })
 
         })
@@ -2867,7 +3263,7 @@ console.log(queryParts)
                     <span class="wrapper-selected-vehicle">
                         <span class="selected-ymm selected-ymm-vq"> 
                             <span class="selected-ymm-ymm">
-                                ${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model} ${selectedVehicle.engine}
+                                ${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model} ${selectedVehicle.engine} ${selectedVehicle.transmission}
                             </span>
                         </span>
                         <span class = "filter-pipe"> | </span>
@@ -2875,8 +3271,8 @@ console.log(queryParts)
                     </span>
                 `
                 : `
+                    ${returnGarageIconOrNothing()}
                     <span class="select-your-vehicle"> Select Vehicle </span>
-                
                     <span class="icon-down-arrow" >
                         <svg width="11" height="7" viewBox="0 0 11 7" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g clip-path="url(#clip0_119_394)">
@@ -2889,7 +3285,6 @@ console.log(queryParts)
                             </defs>
                         </svg>
                     </span>
-                
                 `
 
     }
@@ -2912,20 +3307,18 @@ console.log(queryParts)
 
     function returnGarageIcon(){
         
-        customYmm['settings']['headerVehicleIcon'] = customYmm['settings']['selectedGarageIcon']
-        
         return `
             <span class="icon-grage">
                 ${
                     customYmm['settings']['headerVehicleIcon'] === undefined
                         ?   returnMotorcycleIcon()
-                        :   customYmm['settings']['headerVehicleIcon'] == "garage"
+                        :   customYmm['settings']['headerVehicleIcon'][0] == "garage"
                             ?   returnGarage()
-                            :   customYmm['settings']['headerVehicleIcon'] == "truck"
+                            :   customYmm['settings']['headerVehicleIcon'][0] == "truck"
                                 ?   returnTruck()
-                                :   customYmm['settings']['headerVehicleIcon'] == "car"
+                                :   customYmm['settings']['headerVehicleIcon'][0] == "car"
                                         ?   returnCar()
-                                        :   customYmm['settings']['headerVehicleIcon'] == "motorcycle"   
+                                        :   customYmm['settings']['headerVehicleIcon'][0] == "motorcycle"   
                                             ?   returnMotorcycleIcon()
                                             :   returnJeep()
                 }
@@ -2948,15 +3341,12 @@ console.log(queryParts)
 
         const noOfVehiclesInGarage = customYmm["garage"].length
 
-
         if(document.querySelector('#newly-added-garage-btn'))
             document.querySelector('#newly-added-garage-btn').remove()
                                                       
         document.querySelector(customYmm["garageButtonWrapper"]).innerHTML += `
-                                        
-            <!-- need-to-change for every site -->
-                                        
             <div id = "newly-added-garage-btn" class="navPages-item navPages-item-page">
+                <!-- need-to-change for every site -->
                 <input type="checkbox" id="cb-garage-btn" class="hidden">
                 <label for="cb-garage-btn" class ='navPages-action' id="garage-btn">
                     <span class="garage-text-wrapper">
@@ -2964,7 +3354,6 @@ console.log(queryParts)
                     </span>
                 </label>
             </div>
-
         `
 
         document.querySelector('#cb-garage-btn').addEventListener('change', event => {
@@ -3013,7 +3402,7 @@ console.log(queryParts)
 
             // redirect to the another page
 
-            window.location.href = customYmm["siteURL"] + '/search/' + '?sq='+searchQuery
+            window.location.href = customYmm["siteURL"] + '/search/' + '?sq=' + encodeURIComponent(searchQuery)
 
         }
 
@@ -3120,7 +3509,8 @@ console.log(queryParts)
         const selectedMake = customYmm[`${containerId}`].selections.make
         const selectedModel = customYmm[`${containerId}`].selections.model
         const selectedEngine = customYmm[`${containerId}`].selections.engine
-        return[selectedYear, selectedMake, selectedModel, selectedEngine]
+        const selectedTransmission = customYmm[`${containerId}`].selections.transmission
+        return[selectedYear, selectedMake, selectedModel, selectedEngine, selectedTransmission]
     }
     
     function returnDropdowns(containerId){
@@ -3133,11 +3523,11 @@ console.log(queryParts)
 
     function goForAddToGarage(containerId){
         
-        let [selectedYear, selectedMake, selectedModel,selectedEngine] = returnSelections(containerId)
+        let [selectedYear, selectedMake, selectedModel,selectedEngine, selectedTransmission] = returnSelections(containerId)
         pushToGarage(containerId)
         setupGarage(false);
         hideOverlay()
-        if (customYmm["isInSearchPage"] || customYmm["isInCategoryPage"] || customYmm["isInBrandPage"]) {
+        if (customYmm["isInSearchPage"] ) {
             
             const ymmContainerId = 'search-page-ymm-form-container'
             
@@ -3145,36 +3535,28 @@ console.log(queryParts)
                 year: selectedYear,
                 make: selectedMake,
                 model: selectedModel,
-                engine: selectedEngine
+                engine: selectedEngine,
+                transmission: selectedTransmission
             }
 
             fetchProductsAndRender()
             
-        }else{
+        }else if(customYmm['isInProductPage']) {
+        
+            const ymmContainerId = 'product-page-ymm-form'
             
-            // Get the URL from the browser's address bar
-            var url = window.location.href;
-            
-            // Create a new URL object
-            var parsedUrl = new URL(url);
-            
-            // Retrieve the protocol (http or https)
-            var protocol = parsedUrl.protocol;
-            
-            // Retrieve the hostname (website name)
-            var hostname = parsedUrl.hostname;
-            // Find the part of the URL after the '?'
-            window.location.href =  protocol+'//'+hostname+'/search/'
-            let basePath = protocol+'//'+hostname+'/a/search/'
-    
-            let ymmdfn = [selectedYear, selectedMake, selectedModel, selectedEngine]
-            ymmdfn = ymmdfn.filter(e=> (e !== false && e!== '')).map(ee=>ee.replaceAll(' ', '_'))
-            if(ymmdfn.length){
-                basePath += `v/${ymmdfn.join('>')}/`
+            customYmm[`${ymmContainerId}`].selections = {
+                year: selectedYear,
+                make: selectedMake,
+                model: selectedModel,
+                engine: selectedEngine,
+                transmission: selectedTransmission
             }
-                
-            // window.location.href =  basePath
 
+            saveOrGoforProductPage('product-page-ymm-form')
+
+        }else{
+            window.location.href =  `${customYmm["siteURL"]}/search/`
         }
         
     }
@@ -3183,7 +3565,7 @@ console.log(queryParts)
         
         try{
             
-            let [selectedYear, selectedMake, selectedModel, selectedEngine] = returnSelections(containerId)
+            let [selectedYear, selectedMake, selectedModel, selectedEngine, selectedTransmission] = returnSelections(containerId)
             
             let dropdownsInAddToGarage = await fetchYmmOnlyDataAndRender(containerId);
             
@@ -3195,23 +3577,26 @@ console.log(queryParts)
             }
             
             if(
-                (dropdownsInAddToGarage.makes.length && selectedMake == false ) ||
-                (dropdownsInAddToGarage.models.length && selectedModel == false ) 
+                (dropdownsInAddToGarage.makes.filter(m => m.key.trim().length > 0).length && selectedMake == false ) ||
+                (dropdownsInAddToGarage.models.filter(m => m.key.trim().length > 0).length && selectedModel == false ) 
             ){
                 // do nothing
             }else{
-                if(dropdownsInAddToGarage.engines.length && selectedEngine == ''){
+                if( 
+                    (dropdownsInAddToGarage.engines.filter(m => m.key.trim().length > 0).length && selectedEngine == '') ||
+                    (dropdownsInAddToGarage.transmissions.filter(m => m.key.trim().length > 0).length && selectedTransmission == '')                 
+                ){
                     // do nothing
                 }else{
                     removeHighlighted(containerId)
                     goForAddToGarage(containerId);
                 }
-                
+            
             }
             
         } catch(error) {
             console.log(error)
-            alert('An error has occurred. Please report it to us.\n' + JSON.stringify(error))
+            // alert('An error has occurred. Please report it to us.\n' + JSON.stringify(error))
         }
         
     }
@@ -3300,12 +3685,12 @@ console.log(queryParts)
 
 
     function hideOrShowMobileFilter(){
-
+        document.querySelector('.background-overlay').addEventListener('click', ()=> hideOrShowMobileFilter())
         if(document.querySelector(customYmm['filtersWrapperMobile'])){
             document.querySelector(customYmm['filtersWrapperMobile']).classList.toggle('mobile-filters-open')
             document.body.classList.toggle('mobile-filter-overlay')
         }else{
-            alert("filters wrapper mobile does not exist")
+            // alert("filters wrapper mobile does not exist")
         }
 
     }
@@ -3324,63 +3709,65 @@ console.log(queryParts)
         }
 
         document.querySelector(wrapper).innerHTML = `
-
-            <div class="ymm-container">
-                
-                <div id = "ymm-breadcrumb"></div>
-
-                <div class="ymm-form-search-page">
-                    <h3 class="ymm-title d-flex align-items-center">
-                        <span>Select Your</span><strong> Vehicle </strong>
-                    </h3>
-                    <div class="search-page-ymm-form-container"></div>
-                </div>
-
-                <div class="ymm-change-or-clear ymm-mt-2 ymm-mb-2 d-flex ymm-justify-content-between" style="display:none">
-                    <div class="ymm-change-or-clear__title"></div>
-                        <div class="change-clear-btn-wrapper d-flex ymm-ju stify-content-around">
-                            <div class="change-vehicle-wrapper">
-                                <button onclick = "displayYmmFormInSearchPage()" class = "search-page-change-vehicle-btn button button-primary btn-change">
-                                    Change
-                                </button>
-                            </div>
-                            <div class = "clear-selection-wrapper">
-                                <button onclick = "clearYMMformAndDisplay()" class = "search-page-change-vehicle-btn button button-secondary btn-clear">
-                                    Clear
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="subcats-container" class="sub-category-item" style="display:none"></div>
-
-                <div class="ymm-filters-products ymm-mb-5 ymm-mt-5">
-                    <div class="filters-selections-and-all-filters">
-                        <div class="filters-wrapper-desktop" id="filters-wrapper-desktop"></div>
-                    </div>
-                    <div class="ymm-products-wrapper">
-                        <div class="search-results-count-sort-by">
-                            ${
-                                window.innerWidth > 990
-                                    ? `
-                                        <span class="search-results-count"></span>
-                                    `: `
-                                        <button onclick="hideOrShowMobileFilter()" class = "button button-primary filters-button">Filters <svg class="cm_icon cm_filter-icon" viewBox="0 0 247.46 247.46"><path d="m246.74 13.984c-1.238-2.626-3.881-4.301-6.784-4.301h-232.46c-2.903 0-5.545 1.675-6.784 4.301-1.238 2.626-0.85 5.73 0.997 7.97l89.361 108.38v99.94c0 2.595 1.341 5.005 3.545 6.373 1.208 0.749 2.579 1.127 3.955 1.127 1.137 0 2.278-0.259 3.33-0.78l50.208-24.885c2.551-1.264 4.165-3.863 4.169-6.71l0.098-75.062 89.366-108.39c1.848-2.239 2.237-5.344 0.999-7.969zm-103.65 108.89c-1.105 1.34-1.711 3.023-1.713 4.761l-0.096 73.103-35.213 17.453v-90.546c0-1.741-0.605-3.428-1.713-4.771l-80.958-98.191h200.65l-80.958 98.191z"></path></svg>
-                                        </button>
-                                    `
-                            }
-                            
-                            <div class="sort-by"></div>
-                        </div>
-                        <div class="ymm-filters-selections-wrapper" >
-                            <div class = "ymm-filters-selections"></div>
-                        </div>
-                        <div class="no-results-message-outer"></div> 
-                        <div class="ymm-products grid-col-${columnsPerRowFromThemeSettings}"></div>
-                        <div class = "loading-indicator"></div>
-                    </div>
-                </div>
+            <div class="container-1370">
+              <div class="ymm-container">
+                  
+                  <div id = "ymm-breadcrumb"></div>
+                  <div ${shouldYMMformBeHidden() ? 'style="display:none"' : ''}>
+                      <div class="ymm-form-search-page">
+                          <h3 class="ymm-title d-flex align-items-center">
+                              <span>Select Your</span><strong> Vehicle </strong>
+                          </h3>
+                          <div class="search-page-ymm-form-container"></div>
+                      </div>
+  
+                      <div class="ymm-change-or-clear ymm-mt-2 ymm-mb-2 d-flex ymm-justify-content-between" style="display:none">
+                          <div class="ymm-change-or-clear__title"></div>
+                              <div class="change-clear-btn-wrapper d-flex ymm-ju stify-content-around">
+                                  <div class="change-vehicle-wrapper">
+                                      <button onclick = "displayYmmFormInSearchPage()" class = "search-page-change-vehicle-btn button button-primary btn-change">
+                                          Change
+                                      </button>
+                                  </div>
+                                  <div class = "clear-selection-wrapper">
+                                      <button onclick = "clearYMMformAndDisplay()" class = "search-page-change-vehicle-btn button button-secondary btn-clear">
+                                          Clear
+                                      </button>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+  
+                  <div id="subcats-container" class="sub-category-item" style="display:none"></div>
+  
+                  <div class="ymm-filters-products ymm-mb-5 ymm-mt-5">
+                      <div class="filters-selections-and-all-filters">
+                          <div class="filters-wrapper-desktop" id="filters-wrapper-desktop"></div>
+                      </div>
+                      <div class="ymm-products-wrapper"  id="ymm-products-link">
+                          <div class="search-results-count-sort-by">
+                              ${
+                                  window.innerWidth >= 1025
+                                      ? `
+                                          <span class="search-results-count"></span>
+                                      `: `
+                                          <button onclick="hideOrShowMobileFilter()" class = "button button-primary filters-button">Filters <svg class="cm_icon cm_filter-icon" viewBox="0 0 247.46 247.46"><path d="m246.74 13.984c-1.238-2.626-3.881-4.301-6.784-4.301h-232.46c-2.903 0-5.545 1.675-6.784 4.301-1.238 2.626-0.85 5.73 0.997 7.97l89.361 108.38v99.94c0 2.595 1.341 5.005 3.545 6.373 1.208 0.749 2.579 1.127 3.955 1.127 1.137 0 2.278-0.259 3.33-0.78l50.208-24.885c2.551-1.264 4.165-3.863 4.169-6.71l0.098-75.062 89.366-108.39c1.848-2.239 2.237-5.344 0.999-7.969zm-103.65 108.89c-1.105 1.34-1.711 3.023-1.713 4.761l-0.096 73.103-35.213 17.453v-90.546c0-1.741-0.605-3.428-1.713-4.771l-80.958-98.191h200.65l-80.958 98.191z"></path></svg>
+                                          </button>
+                                      `
+                              }
+                              
+                              <div class="sort-by"></div>
+                          </div>
+                          <div class="ymm-filters-selections-wrapper"  >
+                              <div class = "ymm-filters-selections"></div>
+                          </div>
+                          <div class="no-results-message-outer"></div> 
+                          <div class="ymm-products grid-col-${columnsPerRowFromThemeSettings}"></div>
+                          <div class = "loading-indicator"></div>
+                      </div>
+                  </div>
+              </div>
             </div>
         ` 
     }
@@ -3390,11 +3777,28 @@ console.log(queryParts)
         hideYmmFormInSearchPage();
         fetchProductsAndRender()
         setupGarage(false);
+            if(customYmm['isInCategoryPage']){
+              fetchSubCategoriesAndRender()
+            }
     }
-    
+
+    function isVehicleSelected(){             
+      if( customYmm["garage"].length > 0 ){
+          var lastSelectedVehicle = customYmm["garage"].filter(({selected=false})=>selected)
+          if(lastSelectedVehicle.length > 0){
+            return true
+          }
+      }
+      return false;
+    }
+
     function hideOrShowFormAfterLoadingDropdownValues(dropdowns, containerId){
-        
-        let [selectedYear, selectedMake, selectedModel, selectedEngine] = returnSelections(containerId)
+
+        if( isVehicleSelected()){
+          setURLparams()
+        }
+      
+        let [selectedYear, selectedMake, selectedModel, selectedEngine, selectedTransmission] = returnSelections(containerId)
 
         if(selectedYear && selectedMake && selectedModel){
             enableSelectTag(containerId, "btn-go")
@@ -3403,9 +3807,10 @@ console.log(queryParts)
         
         if(
             (
-                (dropdowns.makes.length && selectedMake == false ) ||
-                (dropdowns.models.length && selectedModel == false ) ||
-                (dropdowns.engines.length && selectedEngine == '' ) 
+                (dropdowns.makes.filter(e => e.key.trim().length > 0).length && selectedMake == false ) ||
+                (dropdowns.models.filter(e => e.key.trim().length > 0).length && selectedModel == false ) ||
+                (dropdowns.engines.filter(e => e.key.trim().length > 0).length && selectedEngine == '' ) ||
+                (dropdowns.transmissions.filter(e => e.key.trim().length > 0).length && selectedTransmission == '' ) 
             )
                 ||
             (
@@ -3416,6 +3821,9 @@ console.log(queryParts)
         ){
             displayYmmFormInSearchPage()
         }else{
+            if(customYmm['isInCategoryPage']){
+              fetchSubCategoriesAndRender()
+            }
             hideYmmFormInSearchPage();
             pushToGarage(containerId)
             setupGarage(false);
@@ -3426,9 +3834,11 @@ console.log(queryParts)
     const decideWhatHappensAfterFormChangeInSearchPage = async (containerId) => {
         customYmm.currentPage = 1
         fetchProductsAndRender()
+        console.log("setting url params hello")
+        setURLparams()
         return;
         let [selectedYear, selectedMake, selectedModel, selectedEngine] = returnSelections(containerId)
-        setURLparams()
+        
         clearContentsForCategoryPage()
         
         let dropdowns = await fetchYmmOnlyDataAndRender(containerId);
@@ -3472,13 +3882,14 @@ console.log(queryParts)
 
         var ymm = customYmm["garage"].filter(ymm => ymm.id == ymmId)[0]
 
-        if(customYmm["isInSearchPage"] || customYmm["isInCategoryPage"]){
+        if(customYmm["isInSearchPage"] ){
             setupGarage(false);
             customYmm[`${ymmContainerIdForSearchPage}`]['selections']['year'] = ymm.year
             customYmm[`${ymmContainerIdForSearchPage}`]['selections']['make'] = ymm.make
             customYmm[`${ymmContainerIdForSearchPage}`]['selections']['model'] = ymm.model
             customYmm[`${ymmContainerIdForSearchPage}`]['selections']['engine'] = ymm.engine
-            // setURLparams()
+            customYmm[`${ymmContainerIdForSearchPage}`]['selections']['transmission'] = ymm.transmission
+
             fetchProductsAndRender()
         }else{
             
@@ -3519,19 +3930,12 @@ console.log(queryParts)
 
             }else{
 
-
-                // The URL you provided
-                const url = window.location.href;
-
-                // Create a URL object
-                const urlObj = new URL(url);
-
-                // Get the pathname component which contains the product handle
-                const pathname = urlObj.pathname;
-
-                customYmm["selectedCategory"] =  pathname.split('?')[0].split('/').reverse()[0]      
-                console.log("selectedCategory", customYmm["selectedCategory"])
-                customYmm["selectedCategories"].push(customYmm["selectedCategory"])
+                if( document.querySelector('#collection_handle')){
+                  customYmm['super_category'] = document.querySelector('#collection_handle').value
+                  console.log(customYmm['super_category'], "super cat")
+                }else{
+                  console.error("ALERT!!!! collection_handle id not present")
+                }
             }
         }
     }
@@ -3556,7 +3960,7 @@ console.log(queryParts)
 
         customYmm.loadMore = true
 
-        customYmm.productsPerPage = 12
+        customYmm.productsPerPage = 36
 
         customYmm.currentPage = 1
         
@@ -3567,12 +3971,11 @@ console.log(queryParts)
         customYmm["selectedPrices"] = []
 
         customYmm['selectedCategory'] = false
-        
+        customYmm['customFieldsSelections'] = {}
         setDefaultCategory()
 
         retrieveURLparams()
 
-        
         function getUrlParamByKey(key) {
           const urlSearchParams = new URLSearchParams(window.location.search);
           return urlSearchParams.get(key);
@@ -3609,13 +4012,14 @@ console.log(queryParts)
                 }
             }
              
-            if(selectedVehicle && (!window.location.href.includes('/v/'))){
+            if(!shouldYMMformBeHidden() && selectedVehicle && (!window.location.href.includes('/v/'))){
                 var ymm = selectedVehicle
                 customYmm[`${ymmContainerIdForSearchPage}`]['selections'] = {
                     year: ymm.year,
                     make: ymm.make,
                     model: ymm.model,
-                    engine: ymm.engine
+                    engine: ymm.engine,
+                    transmission: ymm.transmission
                 }
                 manageHighlighted(ymmContainerIdForSearchPage)
                 
@@ -3634,27 +4038,25 @@ console.log(queryParts)
     function returnCategoryImage(image){
         
         if(image === null || image == '') {
-          return`
-            <div class="cm_vehicle-categories_category-image-container cm_vehicle-categories_link">
-                <svg class="placeholder-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 525.5 525.5"><path d="M375.5 345.2c0-.1 0-.1 0 0 0-.1 0-.1 0 0-1.1-2.9-2.3-5.5-3.4-7.8-1.4-4.7-2.4-13.8-.5-19.8 3.4-10.6 3.6-40.6 1.2-54.5-2.3-14-12.3-29.8-18.5-36.9-5.3-6.2-12.8-14.9-15.4-17.9 8.6-5.6 13.3-13.3 14-23 0-.3 0-.6.1-.8.4-4.1-.6-9.9-3.9-13.5-2.1-2.3-4.8-3.5-8-3.5h-54.9c-.8-7.1-3-13-5.2-17.5-6.8-13.9-12.5-16.5-21.2-16.5h-.7c-8.7 0-14.4 2.5-21.2 16.5-2.2 4.5-4.4 10.4-5.2 17.5h-48.5c-3.2 0-5.9 1.2-8 3.5-3.2 3.6-4.3 9.3-3.9 13.5 0 .2 0 .5.1.8.7 9.8 5.4 17.4 14 23-2.6 3.1-10.1 11.7-15.4 17.9-6.1 7.2-16.1 22.9-18.5 36.9-2.2 13.3-1.2 47.4 1 54.9 1.1 3.8 1.4 14.5-.2 19.4-1.2 2.4-2.3 5-3.4 7.9-4.4 11.6-6.2 26.3-5 32.6 1.8 9.9 16.5 14.4 29.4 14.4h176.8c12.9 0 27.6-4.5 29.4-14.4 1.2-6.5-.5-21.1-5-32.7zm-97.7-178c.3-3.2.8-10.6-.2-18 2.4 4.3 5 10.5 5.9 18h-5.7zm-36.3-17.9c-1 7.4-.5 14.8-.2 18h-5.7c.9-7.5 3.5-13.7 5.9-18zm4.5-6.9c0-.1.1-.2.1-.4 4.4-5.3 8.4-5.8 13.1-5.8h.7c4.7 0 8.7.6 13.1 5.8 0 .1 0 .2.1.4 3.2 8.9 2.2 21.2 1.8 25h-30.7c-.4-3.8-1.3-16.1 1.8-25zm-70.7 42.5c0-.3 0-.6-.1-.9-.3-3.4.5-8.4 3.1-11.3 1-1.1 2.1-1.7 3.4-2.1l-.6.6c-2.8 3.1-3.7 8.1-3.3 11.6 0 .2 0 .5.1.8.3 3.5.9 11.7 10.6 18.8.3.2.8.2 1-.2.2-.3.2-.8-.2-1-9.2-6.7-9.8-14.4-10-17.7 0-.3 0-.6-.1-.8-.3-3.2.5-7.7 3-10.5.8-.8 1.7-1.5 2.6-1.9h155.7c1 .4 1.9 1.1 2.6 1.9 2.5 2.8 3.3 7.3 3 10.5 0 .2 0 .5-.1.8-.3 3.6-1 13.1-13.8 20.1-.3.2-.5.6-.3 1 .1.2.4.4.6.4.1 0 .2 0 .3-.1 13.5-7.5 14.3-17.5 14.6-21.3 0-.3 0-.5.1-.8.4-3.5-.5-8.5-3.3-11.6l-.6-.6c1.3.4 2.5 1.1 3.4 2.1 2.6 2.9 3.5 7.9 3.1 11.3 0 .3 0 .6-.1.9-1.5 20.9-23.6 31.4-65.5 31.4h-43.8c-41.8 0-63.9-10.5-65.4-31.4zm91 89.1h-7c0-1.5 0-3-.1-4.2-.2-12.5-2.2-31.1-2.7-35.1h3.6c.8 0 1.4-.6 1.4-1.4v-14.1h2.4v14.1c0 .8.6 1.4 1.4 1.4h3.7c-.4 3.9-2.4 22.6-2.7 35.1v4.2zm65.3 11.9h-16.8c-.4 0-.7.3-.7.7 0 .4.3.7.7.7h16.8v2.8h-62.2c0-.9-.1-1.9-.1-2.8h33.9c.4 0 .7-.3.7-.7 0-.4-.3-.7-.7-.7h-33.9c-.1-3.2-.1-6.3-.1-9h62.5v9zm-12.5 24.4h-6.3l.2-1.6h5.9l.2 1.6zm-5.8-4.5l1.6-12.3h2l1.6 12.3h-5.2zm-57-19.9h-62.4v-9h62.5c0 2.7 0 5.8-.1 9zm-62.4 1.4h62.4c0 .9-.1 1.8-.1 2.8H194v-2.8zm65.2 0h7.3c0 .9.1 1.8.1 2.8H259c.1-.9.1-1.8.1-2.8zm7.2-1.4h-7.2c.1-3.2.1-6.3.1-9h7c0 2.7 0 5.8.1 9zm-7.7-66.7v6.8h-9v-6.8h9zm-8.9 8.3h9v.7h-9v-.7zm0 2.1h9v2.3h-9v-2.3zm26-1.4h-9v-.7h9v.7zm-9 3.7v-2.3h9v2.3h-9zm9-5.9h-9v-6.8h9v6.8zm-119.3 91.1c-2.1-7.1-3-40.9-.9-53.6 2.2-13.5 11.9-28.6 17.8-35.6 5.6-6.5 13.5-15.7 15.7-18.3 11.4 6.4 28.7 9.6 51.8 9.6h6v14.1c0 .8.6 1.4 1.4 1.4h5.4c.3 3.1 2.4 22.4 2.7 35.1 0 1.2.1 2.6.1 4.2h-63.9c-.8 0-1.4.6-1.4 1.4v16.1c0 .8.6 1.4 1.4 1.4H256c-.8 11.8-2.8 24.7-8 33.3-2.6 4.4-4.9 8.5-6.9 12.2-.4.7-.1 1.6.6 1.9.2.1.4.2.6.2.5 0 1-.3 1.3-.8 1.9-3.7 4.2-7.7 6.8-12.1 5.4-9.1 7.6-22.5 8.4-34.7h7.8c.7 11.2 2.6 23.5 7.1 32.4.2.5.8.8 1.3.8.2 0 .4 0 .6-.2.7-.4 1-1.2.6-1.9-4.3-8.5-6.1-20.3-6.8-31.1H312l-2.4 18.6c-.1.4.1.8.3 1.1.3.3.7.5 1.1.5h9.6c.4 0 .8-.2 1.1-.5.3-.3.4-.7.3-1.1l-2.4-18.6H333c.8 0 1.4-.6 1.4-1.4v-16.1c0-.8-.6-1.4-1.4-1.4h-63.9c0-1.5 0-2.9.1-4.2.2-12.7 2.3-32 2.7-35.1h5.2c.8 0 1.4-.6 1.4-1.4v-14.1h6.2c23.1 0 40.4-3.2 51.8-9.6 2.3 2.6 10.1 11.8 15.7 18.3 5.9 6.9 15.6 22.1 17.8 35.6 2.2 13.4 2 43.2-1.1 53.1-1.2 3.9-1.4 8.7-1 13-1.7-2.8-2.9-4.4-3-4.6-.2-.3-.6-.5-.9-.6h-.5c-.2 0-.4.1-.5.2-.6.5-.8 1.4-.3 2 0 0 .2.3.5.8 1.4 2.1 5.6 8.4 8.9 16.7h-42.9v-43.8c0-.8-.6-1.4-1.4-1.4s-1.4.6-1.4 1.4v44.9c0 .1-.1.2-.1.3 0 .1 0 .2.1.3v9c-1.1 2-3.9 3.7-10.5 3.7h-7.5c-.4 0-.7.3-.7.7 0 .4.3.7.7.7h7.5c5 0 8.5-.9 10.5-2.8-.1 3.1-1.5 6.5-10.5 6.5H210.4c-9 0-10.5-3.4-10.5-6.5 2 1.9 5.5 2.8 10.5 2.8h67.4c.4 0 .7-.3.7-.7 0-.4-.3-.7-.7-.7h-67.4c-6.7 0-9.4-1.7-10.5-3.7v-54.5c0-.8-.6-1.4-1.4-1.4s-1.4.6-1.4 1.4v43.8h-43.6c4.2-10.2 9.4-17.4 9.5-17.5.5-.6.3-1.5-.3-2s-1.5-.3-2 .3c-.1.2-1.4 2-3.2 5 .1-4.9-.4-10.2-1.1-12.8zm221.4 60.2c-1.5 8.3-14.9 12-26.6 12H174.4c-11.8 0-25.1-3.8-26.6-12-1-5.7.6-19.3 4.6-30.2H197v9.8c0 6.4 4.5 9.7 13.4 9.7h105.4c8.9 0 13.4-3.3 13.4-9.7v-9.8h44c4 10.9 5.6 24.5 4.6 30.2z"></path><path d="M286.1 359.3c0 .4.3.7.7.7h14.7c.4 0 .7-.3.7-.7 0-.4-.3-.7-.7-.7h-14.7c-.3 0-.7.3-.7.7zm5.3-145.6c13.5-.5 24.7-2.3 33.5-5.3.4-.1.6-.5.4-.9-.1-.4-.5-.6-.9-.4-8.6 3-19.7 4.7-33 5.2-.4 0-.7.3-.7.7 0 .4.3.7.7.7zm-11.3.1c.4 0 .7-.3.7-.7 0-.4-.3-.7-.7-.7H242c-19.9 0-35.3-2.5-45.9-7.4-.4-.2-.8 0-.9.3-.2.4 0 .8.3.9 10.8 5 26.4 7.5 46.5 7.5h38.1zm-7.2 116.9c.4.1.9.1 1.4.1 1.7 0 3.4-.7 4.7-1.9 1.4-1.4 1.9-3.2 1.5-5-.2-.8-.9-1.2-1.7-1.1-.8.2-1.2.9-1.1 1.7.3 1.2-.4 2-.7 2.4-.9.9-2.2 1.3-3.4 1-.8-.2-1.5.3-1.7 1.1s.2 1.5 1 1.7z"></path><path d="M275.5 331.6c-.8 0-1.4.6-1.5 1.4 0 .8.6 1.4 1.4 1.5h.3c3.6 0 7-2.8 7.7-6.3.2-.8-.4-1.5-1.1-1.7-.8-.2-1.5.4-1.7 1.1-.4 2.3-2.8 4.2-5.1 4zm5.4 1.6c-.6.5-.6 1.4-.1 2 1.1 1.3 2.5 2.2 4.2 2.8.2.1.3.1.5.1.6 0 1.1-.3 1.3-.9.3-.7-.1-1.6-.8-1.8-1.2-.5-2.2-1.2-3-2.1-.6-.6-1.5-.6-2.1-.1zm-38.2 12.7c.5 0 .9 0 1.4-.1.8-.2 1.3-.9 1.1-1.7-.2-.8-.9-1.3-1.7-1.1-1.2.3-2.5-.1-3.4-1-.4-.4-1-1.2-.8-2.4.2-.8-.3-1.5-1.1-1.7-.8-.2-1.5.3-1.7 1.1-.4 1.8.1 3.7 1.5 5 1.2 1.2 2.9 1.9 4.7 1.9z"></path><path d="M241.2 349.6h.3c.8 0 1.4-.7 1.4-1.5s-.7-1.4-1.5-1.4c-2.3.1-4.6-1.7-5.1-4-.2-.8-.9-1.3-1.7-1.1-.8.2-1.3.9-1.1 1.7.7 3.5 4.1 6.3 7.7 6.3zm-9.7 3.6c.2 0 .3 0 .5-.1 1.6-.6 3-1.6 4.2-2.8.5-.6.5-1.5-.1-2s-1.5-.5-2 .1c-.8.9-1.8 1.6-3 2.1-.7.3-1.1 1.1-.8 1.8 0 .6.6.9 1.2.9z"></path></svg>
-            </div>
-        `
-
+            return`
+                <div class="cm_vehicle-categories_category-image-container cm_vehicle-categories_link">
+                    <svg class="placeholder-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 525.5 525.5"><path d="M375.5 345.2c0-.1 0-.1 0 0 0-.1 0-.1 0 0-1.1-2.9-2.3-5.5-3.4-7.8-1.4-4.7-2.4-13.8-.5-19.8 3.4-10.6 3.6-40.6 1.2-54.5-2.3-14-12.3-29.8-18.5-36.9-5.3-6.2-12.8-14.9-15.4-17.9 8.6-5.6 13.3-13.3 14-23 0-.3 0-.6.1-.8.4-4.1-.6-9.9-3.9-13.5-2.1-2.3-4.8-3.5-8-3.5h-54.9c-.8-7.1-3-13-5.2-17.5-6.8-13.9-12.5-16.5-21.2-16.5h-.7c-8.7 0-14.4 2.5-21.2 16.5-2.2 4.5-4.4 10.4-5.2 17.5h-48.5c-3.2 0-5.9 1.2-8 3.5-3.2 3.6-4.3 9.3-3.9 13.5 0 .2 0 .5.1.8.7 9.8 5.4 17.4 14 23-2.6 3.1-10.1 11.7-15.4 17.9-6.1 7.2-16.1 22.9-18.5 36.9-2.2 13.3-1.2 47.4 1 54.9 1.1 3.8 1.4 14.5-.2 19.4-1.2 2.4-2.3 5-3.4 7.9-4.4 11.6-6.2 26.3-5 32.6 1.8 9.9 16.5 14.4 29.4 14.4h176.8c12.9 0 27.6-4.5 29.4-14.4 1.2-6.5-.5-21.1-5-32.7zm-97.7-178c.3-3.2.8-10.6-.2-18 2.4 4.3 5 10.5 5.9 18h-5.7zm-36.3-17.9c-1 7.4-.5 14.8-.2 18h-5.7c.9-7.5 3.5-13.7 5.9-18zm4.5-6.9c0-.1.1-.2.1-.4 4.4-5.3 8.4-5.8 13.1-5.8h.7c4.7 0 8.7.6 13.1 5.8 0 .1 0 .2.1.4 3.2 8.9 2.2 21.2 1.8 25h-30.7c-.4-3.8-1.3-16.1 1.8-25zm-70.7 42.5c0-.3 0-.6-.1-.9-.3-3.4.5-8.4 3.1-11.3 1-1.1 2.1-1.7 3.4-2.1l-.6.6c-2.8 3.1-3.7 8.1-3.3 11.6 0 .2 0 .5.1.8.3 3.5.9 11.7 10.6 18.8.3.2.8.2 1-.2.2-.3.2-.8-.2-1-9.2-6.7-9.8-14.4-10-17.7 0-.3 0-.6-.1-.8-.3-3.2.5-7.7 3-10.5.8-.8 1.7-1.5 2.6-1.9h155.7c1 .4 1.9 1.1 2.6 1.9 2.5 2.8 3.3 7.3 3 10.5 0 .2 0 .5-.1.8-.3 3.6-1 13.1-13.8 20.1-.3.2-.5.6-.3 1 .1.2.4.4.6.4.1 0 .2 0 .3-.1 13.5-7.5 14.3-17.5 14.6-21.3 0-.3 0-.5.1-.8.4-3.5-.5-8.5-3.3-11.6l-.6-.6c1.3.4 2.5 1.1 3.4 2.1 2.6 2.9 3.5 7.9 3.1 11.3 0 .3 0 .6-.1.9-1.5 20.9-23.6 31.4-65.5 31.4h-43.8c-41.8 0-63.9-10.5-65.4-31.4zm91 89.1h-7c0-1.5 0-3-.1-4.2-.2-12.5-2.2-31.1-2.7-35.1h3.6c.8 0 1.4-.6 1.4-1.4v-14.1h2.4v14.1c0 .8.6 1.4 1.4 1.4h3.7c-.4 3.9-2.4 22.6-2.7 35.1v4.2zm65.3 11.9h-16.8c-.4 0-.7.3-.7.7 0 .4.3.7.7.7h16.8v2.8h-62.2c0-.9-.1-1.9-.1-2.8h33.9c.4 0 .7-.3.7-.7 0-.4-.3-.7-.7-.7h-33.9c-.1-3.2-.1-6.3-.1-9h62.5v9zm-12.5 24.4h-6.3l.2-1.6h5.9l.2 1.6zm-5.8-4.5l1.6-12.3h2l1.6 12.3h-5.2zm-57-19.9h-62.4v-9h62.5c0 2.7 0 5.8-.1 9zm-62.4 1.4h62.4c0 .9-.1 1.8-.1 2.8H194v-2.8zm65.2 0h7.3c0 .9.1 1.8.1 2.8H259c.1-.9.1-1.8.1-2.8zm7.2-1.4h-7.2c.1-3.2.1-6.3.1-9h7c0 2.7 0 5.8.1 9zm-7.7-66.7v6.8h-9v-6.8h9zm-8.9 8.3h9v.7h-9v-.7zm0 2.1h9v2.3h-9v-2.3zm26-1.4h-9v-.7h9v.7zm-9 3.7v-2.3h9v2.3h-9zm9-5.9h-9v-6.8h9v6.8zm-119.3 91.1c-2.1-7.1-3-40.9-.9-53.6 2.2-13.5 11.9-28.6 17.8-35.6 5.6-6.5 13.5-15.7 15.7-18.3 11.4 6.4 28.7 9.6 51.8 9.6h6v14.1c0 .8.6 1.4 1.4 1.4h5.4c.3 3.1 2.4 22.4 2.7 35.1 0 1.2.1 2.6.1 4.2h-63.9c-.8 0-1.4.6-1.4 1.4v16.1c0 .8.6 1.4 1.4 1.4H256c-.8 11.8-2.8 24.7-8 33.3-2.6 4.4-4.9 8.5-6.9 12.2-.4.7-.1 1.6.6 1.9.2.1.4.2.6.2.5 0 1-.3 1.3-.8 1.9-3.7 4.2-7.7 6.8-12.1 5.4-9.1 7.6-22.5 8.4-34.7h7.8c.7 11.2 2.6 23.5 7.1 32.4.2.5.8.8 1.3.8.2 0 .4 0 .6-.2.7-.4 1-1.2.6-1.9-4.3-8.5-6.1-20.3-6.8-31.1H312l-2.4 18.6c-.1.4.1.8.3 1.1.3.3.7.5 1.1.5h9.6c.4 0 .8-.2 1.1-.5.3-.3.4-.7.3-1.1l-2.4-18.6H333c.8 0 1.4-.6 1.4-1.4v-16.1c0-.8-.6-1.4-1.4-1.4h-63.9c0-1.5 0-2.9.1-4.2.2-12.7 2.3-32 2.7-35.1h5.2c.8 0 1.4-.6 1.4-1.4v-14.1h6.2c23.1 0 40.4-3.2 51.8-9.6 2.3 2.6 10.1 11.8 15.7 18.3 5.9 6.9 15.6 22.1 17.8 35.6 2.2 13.4 2 43.2-1.1 53.1-1.2 3.9-1.4 8.7-1 13-1.7-2.8-2.9-4.4-3-4.6-.2-.3-.6-.5-.9-.6h-.5c-.2 0-.4.1-.5.2-.6.5-.8 1.4-.3 2 0 0 .2.3.5.8 1.4 2.1 5.6 8.4 8.9 16.7h-42.9v-43.8c0-.8-.6-1.4-1.4-1.4s-1.4.6-1.4 1.4v44.9c0 .1-.1.2-.1.3 0 .1 0 .2.1.3v9c-1.1 2-3.9 3.7-10.5 3.7h-7.5c-.4 0-.7.3-.7.7 0 .4.3.7.7.7h7.5c5 0 8.5-.9 10.5-2.8-.1 3.1-1.5 6.5-10.5 6.5H210.4c-9 0-10.5-3.4-10.5-6.5 2 1.9 5.5 2.8 10.5 2.8h67.4c.4 0 .7-.3.7-.7 0-.4-.3-.7-.7-.7h-67.4c-6.7 0-9.4-1.7-10.5-3.7v-54.5c0-.8-.6-1.4-1.4-1.4s-1.4.6-1.4 1.4v43.8h-43.6c4.2-10.2 9.4-17.4 9.5-17.5.5-.6.3-1.5-.3-2s-1.5-.3-2 .3c-.1.2-1.4 2-3.2 5 .1-4.9-.4-10.2-1.1-12.8zm221.4 60.2c-1.5 8.3-14.9 12-26.6 12H174.4c-11.8 0-25.1-3.8-26.6-12-1-5.7.6-19.3 4.6-30.2H197v9.8c0 6.4 4.5 9.7 13.4 9.7h105.4c8.9 0 13.4-3.3 13.4-9.7v-9.8h44c4 10.9 5.6 24.5 4.6 30.2z"></path><path d="M286.1 359.3c0 .4.3.7.7.7h14.7c.4 0 .7-.3.7-.7 0-.4-.3-.7-.7-.7h-14.7c-.3 0-.7.3-.7.7zm5.3-145.6c13.5-.5 24.7-2.3 33.5-5.3.4-.1.6-.5.4-.9-.1-.4-.5-.6-.9-.4-8.6 3-19.7 4.7-33 5.2-.4 0-.7.3-.7.7 0 .4.3.7.7.7zm-11.3.1c.4 0 .7-.3.7-.7 0-.4-.3-.7-.7-.7H242c-19.9 0-35.3-2.5-45.9-7.4-.4-.2-.8 0-.9.3-.2.4 0 .8.3.9 10.8 5 26.4 7.5 46.5 7.5h38.1zm-7.2 116.9c.4.1.9.1 1.4.1 1.7 0 3.4-.7 4.7-1.9 1.4-1.4 1.9-3.2 1.5-5-.2-.8-.9-1.2-1.7-1.1-.8.2-1.2.9-1.1 1.7.3 1.2-.4 2-.7 2.4-.9.9-2.2 1.3-3.4 1-.8-.2-1.5.3-1.7 1.1s.2 1.5 1 1.7z"></path><path d="M275.5 331.6c-.8 0-1.4.6-1.5 1.4 0 .8.6 1.4 1.4 1.5h.3c3.6 0 7-2.8 7.7-6.3.2-.8-.4-1.5-1.1-1.7-.8-.2-1.5.4-1.7 1.1-.4 2.3-2.8 4.2-5.1 4zm5.4 1.6c-.6.5-.6 1.4-.1 2 1.1 1.3 2.5 2.2 4.2 2.8.2.1.3.1.5.1.6 0 1.1-.3 1.3-.9.3-.7-.1-1.6-.8-1.8-1.2-.5-2.2-1.2-3-2.1-.6-.6-1.5-.6-2.1-.1zm-38.2 12.7c.5 0 .9 0 1.4-.1.8-.2 1.3-.9 1.1-1.7-.2-.8-.9-1.3-1.7-1.1-1.2.3-2.5-.1-3.4-1-.4-.4-1-1.2-.8-2.4.2-.8-.3-1.5-1.1-1.7-.8-.2-1.5.3-1.7 1.1-.4 1.8.1 3.7 1.5 5 1.2 1.2 2.9 1.9 4.7 1.9z"></path><path d="M241.2 349.6h.3c.8 0 1.4-.7 1.4-1.5s-.7-1.4-1.5-1.4c-2.3.1-4.6-1.7-5.1-4-.2-.8-.9-1.3-1.7-1.1-.8.2-1.3.9-1.1 1.7.7 3.5 4.1 6.3 7.7 6.3zm-9.7 3.6c.2 0 .3 0 .5-.1 1.6-.6 3-1.6 4.2-2.8.5-.6.5-1.5-.1-2s-1.5-.5-2 .1c-.8.9-1.8 1.6-3 2.1-.7.3-1.1 1.1-.8 1.8 0 .6.6.9 1.2.9z"></path></svg>
+                </div>
+            `
         }
         
         return`
             <div class="cm_vehicle-categories_category-image-container cm_vehicle-categories_link">
-
                <img class="cm_vehicle-categories_category-image" src="${image}" />
-
             </div>
-        
         `
-        
     }
 
     function fetchSubCategoriesAndRender(){
-        
+
+        if(document.querySelector('.collection-content-1 p')){
+            document.querySelector('.collection-content-1 p').style.marginBottom = '15px'
+        }
         // The URL you provided
         const url = window.location.href;
 
@@ -3667,16 +4069,28 @@ console.log(queryParts)
         const categoryURL =  pathname.split('?')[0].replace('/collections/', '') 
         
         console.log('categoryurl', categoryURL)
-        
-        fetch(`${customYmm["subCategoryAPI"]}?category=${categoryURL}`)
+        var containerId  = "search-page-ymm-form-container"
+        fetch(`${customYmm["subCategoryAPI"]}?category=${categoryURL}&transmission=${customYmm[containerId].selections.transmission}&engine=${customYmm[containerId].selections.engine}&year=${customYmm[containerId].selections.year}&make=${customYmm[containerId].selections.make}&model=${customYmm[containerId].selections.model}`)
         .then(response => response.json())
         .then(data => {
-            data.shift();
-            if(data.length)
-                document.querySelector(customYmm["subCatContainerForCategoryPage"]).style.display  = "block"
-                        
+            
+            if(data.length){
+              console.log("sub cats exist")
+              customYmm['subCategories'] = data
+              document.querySelector(customYmm["subCatContainerForCategoryPage"]).style.display  = "block"
+              if(document.querySelector('.ymm-categories')){
+                 document.querySelector('.ymm-categories').style.display = "none"       
+                 console.log("hiding categories")
+              }else{
+                console.log("does not exist categories")
+              }
+            }else{
+              console.log("data length 0")
+            }
+
             document.querySelector(customYmm["subCatContainerForCategoryPage"]).innerHTML = 
-                `<div class="categories-items-wrapper">`  +         
+                `
+                <div class="categories-items-wrapper">`  +         
               data.map(c => {
                 return`
                     <div class="shop-page-category-card-wrapper parent-category-wrapper cm_vehicle-categories__topline-wrapper">
@@ -3703,16 +4117,24 @@ console.log(queryParts)
 
     function setupForSearchPage(isCategoryPage = false){
 
-        if(!isCategoryPage)
+        if(!isCategoryPage){
             insertWrappersForSearchPage(customYmm["searchPageWrapper"])
-        else if(isCategoryPage){
-            insertWrappersForSearchPage(customYmm["categoryPageWrapper"])
+            document.title = "Search - Rudy's Performance Parts ";
+
         }
-        fetchSubCategoriesAndRender()
+        else if(isCategoryPage){
+            insertWrappersForSearchPage(customYmm["searchPageWrapper"])
+            
+        }
+        
         setupYMMform('search-page-ymm-form-container', 'search-page-ymm-form-container', decideWhatHappensAfterFormChangeInSearchPage, saveOrGoForSearchPage )
 
         setInitialSelections()
-        displayBreadCrumb()
+        if(isCategoryPage){
+          fetchSubCategoriesAndRender()
+        }  
+      displayBreadCrumb()
+      
 
     }
 
@@ -3723,6 +4145,7 @@ console.log(queryParts)
         const selectedMake = customYmm[`${containerId}`].selections.make
         const selectedModel = customYmm[`${containerId}`].selections.model
         const selectedEngine = customYmm[`${containerId}`].selections.engine
+        const selectedTransmission = customYmm[`${containerId}`].selections.transmission
 
         if(customYmm["garage"].length){
 
@@ -3745,7 +4168,8 @@ console.log(queryParts)
                     vehicle.year === selectedYear &&
                     vehicle.make === selectedMake &&
                     vehicle.model === selectedModel &&
-                    vehicle.engine === selectedEngine
+                    vehicle.engine === selectedEngine &&
+                    vehicle.transmission === selectedTransmission
                 ){
                     vehicle.selected = true
                     setCookie("garage", JSON.stringify(customYmm["garage"]))
@@ -3763,12 +4187,12 @@ console.log(queryParts)
                 year: selectedYear,
                 make: selectedMake,
                 model: selectedModel,
-                engine: selectedEngine
+                engine: selectedEngine,
+                transmission: selectedTransmission
             }
         )
 
         setCookie("garage", JSON.stringify(customYmm["garage"]))
-
 
     }
 
@@ -3844,7 +4268,7 @@ console.log(queryParts)
 
     const decideWhatHappensAfterFormChangeInHomePage = async (containerId) => {
     
-        let [selectedYear, selectedMake, selectedModel, selectedEngine] = returnSelections(containerId)
+        let [selectedYear, selectedMake, selectedModel, selectedEngine, selectedTransmission] = returnSelections(containerId)
         if(selectedYear && selectedMake && selectedModel){
             removeHighlighted(containerId)
             saveOrGoForHomePage(containerId);
@@ -3877,6 +4301,8 @@ console.log(queryParts)
             customYmm[containerId].selections.year = selectedVehicle.year
             customYmm[containerId].selections.make = selectedVehicle.make
             customYmm[containerId].selections.model = selectedVehicle.model
+            customYmm[containerId].selections.engine = selectedVehicle.engine 
+            customYmm[containerId].selections.transmission = selectedVehicle.transmission             
             await fetchYmmOnlyDataAndRender(containerId)
             enableSelectTag(containerId, "btn-go")
             enableSelectTag(containerId, "btn-clear")
@@ -3943,7 +4369,7 @@ console.log(queryParts)
            
         }catch(error){
             // set defaults when error
-            customYmm['settings'] =  {
+            customYmm['settings']  = {
                 "showCategoryImages": true,
                 "hideProductsUntilSelected": false,
                 "showBrandInProductCards": true,
@@ -3952,28 +4378,32 @@ console.log(queryParts)
                 "productsPerRow": "3",
                 "productCardImageAspectRatio": "default",
                 "headerVehicleIcon": [
-                    "jeep"
+                    "garage"
                 ]
             }   
         }   
     }
 
     function setYears(years = ["2024", "1997"]){
-                    
         // Convert strings to integers
-        let yearsInt = years.map(year => parseInt(year));
+        let yearsInt = years.filter(y => y.length > 0 && !isNaN(y) ).map(year => parseInt(year));
+
         // Sort the array to find the lowest and highest years
         yearsInt.sort((a, b) => a - b);
         let lowestYear = yearsInt[0];
         let highestYear = yearsInt[yearsInt.length - 1];
+        console.log("highest year and lowerst year", highestYear, lowestYear)
         // Create an array containing all the years from lowest to highest
         let allYears = [];
         for (let i = highestYear; i >= lowestYear; i--) {
-            allYears.push(i);
+            if(i >= 1958){
+                allYears.push(i);
+            }
         }
+        // console.log(allYears)
         customYmm['years'] = allYears;
 
-        console.log(customYmm['years']);
+        // console.log(customYmm['years']);
     }
 
     async function loadYears(){
@@ -3989,9 +4419,10 @@ console.log(queryParts)
     async function initialize(){
 
         // displaySearchModalInMobile();
-
-        await loadSettingsFile();
-        await loadYears();
+        const settingsPromise = loadSettingsFile();
+        const yearsPromise = loadYears();
+              // Wait for both requests to complete
+        await Promise.all([settingsPromise, yearsPromise]);
 
         decideWhichPageIsIt()
 
@@ -4292,6 +4723,8 @@ function fetchRelevantCategoriesAndRender(){
         )
     })
 }
+
+
 function displaySearchModalInMobile(){
     document.querySelector('#cm-mobile-search-box').addEventListener('click', ()=> {
         const searchModal=`
@@ -4350,4 +4783,229 @@ function displaySearchModalInMobile(){
             modal.remove()
         })
     })
+}
+
+function updateAffirmPricingInProductCard(){
+
+    var _affirm_config = {
+        public_api_key: "QTAUQK9TBVQU1TQ5",
+        script: "https://www.affirm.com/js/v2/affirm.js"
+    };
+
+    (function(l, g, m, e, a, f, b) {
+        var d, c = l[m] || {},
+            h = document.createElement(f),
+            n = document.getElementsByTagName(f)[0],
+            k = function(a, b, c) {
+                return function() {
+                    a[b]._.push([c, arguments])
+                }
+            };
+        c[e] = k(c, e, "set");
+        d = c[e];
+        c[a] = {};
+        c[a]._ = [];
+        d._ = [];
+        c[a][b] = k(c, a, b);
+        a = 0;
+        for (b = "set add save post open empty reset on off trigger ready setProduct".split(" "); a < b.length; a++) d[b[a]] = k(c, e, b[a]);
+        a = 0;
+        for (b = ["get", "token", "url", "items"]; a < b.length; a++) d[b[a]] = function() {};
+        h.async = !0;
+        h.src = g[f];
+        n.parentNode.insertBefore(h, n);
+        delete g[f];
+        d(g);
+        l[m] = c
+    })(window, _affirm_config, "affirm", "checkout", "ui", "script", "ready");
+
+}
+function displayStandardFilterWrapper(){
+
+    const standarFilters = {
+        'searchauto.brand': "ymm-brands-filter",
+        'searchauto.category': "ymm-categories-filter",
+        'searchauto.price': "ymm-prices-filter"
+    }
+
+    const tempFilterSettings = customYmm['filter_settings'].filter(fs => customYmm['custom_fields'].map(cf => cf.name_key).includes(fs.filter_key) || Object.keys(standarFilters).includes(fs.filter_key))
+
+    tempFilterSettings.forEach(a => { // ensuring fitler_settings are in sort order
+
+        if(!Object.keys(standarFilters).includes(a.filter_key)){return}
+
+        var key = a.filter_key
+        var className = standarFilters[key]
+
+        let order = parseInt(a.sort_order)
+        
+        // Create the new div element you want to insert
+        const newDiv = document.createElement('div');
+        newDiv.className=className 
+        newDiv.setAttribute('data-filter-key', key)
+        newDiv.classList.add('ymm-filter-group')
+    
+        if(order === 1){
+    
+            const existingDiv = document.querySelector('.ymm-filters-wrapper-inner');
+    
+
+            // Insert the new div as the first child of the existing div
+            existingDiv.prepend(newDiv);
+    
+        }else{
+    
+            const currentIndex = tempFilterSettings.findIndex(obj => obj.filter_key === key);
+            
+            const prevFilterKey = tempFilterSettings[currentIndex - 1].filter_key 
+            
+            // console.log(`div[data-filter-key="${prevFilterKey}"]`)
+            
+            if(prevFilterKey){
+                // Select the existing div with the specified data attribute
+                const existingDiv = document.querySelector(`div[data-filter-key="${prevFilterKey}"]`);
+    
+                if(existingDiv){
+                    
+                    // Insert the new div right after the existing one
+                    existingDiv.insertAdjacentElement('afterend', newDiv);
+                    
+                }
+    
+            }
+    
+        }
+
+    })
+
+}
+
+function displayBrands(){
+
+    if(!document.querySelector('.ymm-brands-filter')) return 
+
+    brandData = customYmm["brands"];
+    
+    document.querySelector('.ymm-brands-filter').innerHTML = `
+        <div class="collapsible-wrapper">
+            <div class="collapsible-title-icon" onclick="hideOrShowCollapsibleContent(event)">
+                <h3>Brand</h3>
+                <div class="collapsible-toggle-icon" >${returnArrowLeft()}</div>
+            </div>
+            <div class="collapsible-content">
+                ${brandData.sort((a,b) => a.name.localeCompare(b.name)).map(brand => createBrandItem(brand)).join(' ')}
+            </div>
+        </div>
+    `
+}
+function displayCustomFieldsAndAssignListeners(){
+
+    customYmm['custom_fields'].map(cf => cf.name_key).forEach(key => {
+        if (typeof customYmm["customFieldsSelections"][key] === "undefined") {
+            customYmm["customFieldsSelections"][key] = [];
+        }
+    });
+
+    customYmm['custom_fields'] = customYmm['custom_fields']
+        .map(cf => ({...cf, sort_order: customYmm['filter_settings'].filter(fs => fs.filter_key === cf.name_key)[0]?.sort_order || 1 }))
+        .sort((a, b) => a.sort_order - b.sort_order);
+    
+    customYmm['custom_fields']
+    .filter(cf => !customYmm.selectKeys.includes(cf.name_key))
+    .forEach((custom_field) => {
+         
+        const newDiv = document.createElement('div') 
+        newDiv.className = "ymm-filter-group"
+        newDiv.setAttribute('data-filter-key', custom_field.name_key)
+        newDiv.innerHTML = `
+                <div class="collapsible-wrapper${ window.innerWidth < 1024 && customYmm["customFieldsSelections"][custom_field.name_key].length == 0 ? ' collapsible-collapsed' : '' }">
+                    
+                    <div class="collapsible-title-icon custom-fields-collapsible-summary">
+                        <h3>${custom_field.name}</h3>
+                        <div class="collapsible-toggle-icon minus-icon" >${returnArrowLeft()}</div>
+                        <div class="collapsible-toggle-icon plus-icon" >${returnArrowDown()}</div>
+                    </div>
+
+                    <div class="collapsible-content">
+                        ${custom_field.values.sort((a,b) => a.value_key.localeCompare(b.value_key))
+                        .filter(({value_key}) => value_key !== "nan" && value_key !== "" )
+                        .map(({value_key, value, product_count, name_key}, index) => {
+                            return`
+                                <div class="input-and-label${index > 4 ? ' surplus-item':''}">
+                                    <input 
+                                        ${customYmm["customFieldsSelections"][name_key].includes(value_key) ? 'checked' : '' } 
+                                        name = "cb-filter" 
+                                        data-cf = "${name_key}" 
+                                        class = "cb-filter cb-filter-custom-fields" 
+                                        type = "checkbox" 
+                                        id = "cb-${name_key}-${value_key}" 
+                                        data-value-key = "${value_key}" 
+                                    >
+                                    <label for="cb-${name_key}-${value_key}"  class="form-label--checkbox">
+                                        <span class="brand-name">${value} (${product_count})</span>
+                                    </label>
+                                </div>                    
+                            `
+                        })
+                        .join(' ')}
+
+                        ${
+                            custom_field.values.length  > 5 && `
+                                <div class="show-more-items">+ Show More</div>
+                            ` || ''
+                        }
+                    </div>
+                </div>
+       `   
+
+        document.querySelector('.ymm-filters-wrapper-inner').appendChild(newDiv)
+
+    })
+ 
+    if(document.querySelector('.show-more-items')){
+        Array.from(document.querySelectorAll('.show-more-items')).forEach(showMoreItem => {
+            showMoreItem.addEventListener('click', (event) => {
+                const elem  = event.target
+                elem.closest('.collapsible-content').classList.toggle('surplus-items-displayed')
+                if(elem.closest('.collapsible-content.surplus-items-displayed')){
+                    elem.innerText = "- Show Less"
+                }else{
+                    elem.innerText = "+ Show More"
+                }
+            })
+        })
+    }
+
+    if(document.querySelector('.custom-fields-collapsible-summary')){
+        Array.from(document.querySelectorAll('.custom-fields-collapsible-summary')).forEach(collapsibleSummaryItem => {
+            collapsibleSummaryItem.addEventListener('click', (event) => {
+                const elem  = event.target
+                elem.closest('.collapsible-wrapper').classList.toggle('collapsible-collapsed')
+            })
+        })
+    }
+
+    Array.from(document.querySelectorAll('.cb-filter-custom-fields')).forEach(input => {
+        input.addEventListener('change', () => {
+
+            if(typeof customYmm['customFieldsSelections'][input.getAttribute('data-cf')] == 'undefined' ){
+                customYmm['customFieldsSelections'][input.getAttribute('data-cf')] = [];
+            }
+        
+            if(input.checked){
+                customYmm['customFieldsSelections'][input.getAttribute('data-cf')].push(input.getAttribute('data-value-key'));
+            }else{
+                customYmm['customFieldsSelections'][input.getAttribute('data-cf')] = 
+                customYmm['customFieldsSelections'][input.getAttribute('data-cf')]
+                .filter(v => v !== input.getAttribute('data-value-key'));
+            }
+    
+            setURLparams()
+            customYmm.currentPage = 1
+            fetchProductsAndRender(append =false )
+    
+        })
+    
+    })
+    
 }
